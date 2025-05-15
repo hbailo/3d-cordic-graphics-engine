@@ -37,42 +37,42 @@ use ieee.std_logic_1164.all;
 entity cordic_stage is
   generic (
     --! @brief Total number of CORDIC iterations in the pipeline
-    N : natural range 1 to 1023;
+    N: positive range 1 to 1023;
     
     --! @brief Current iteration index
-    I : natural range 0 to N - 1
+    I: natural range 0 to N - 1
   );
   
   port (
     --! @brief System clock
-    clk : in  std_logic;
+    clk: in std_logic;
 
     --! @brief Active-high asynchronous reset
-    rst : in  std_logic;
+    rst: in std_logic;
     
     --! @brief X-coordinate input (signed integer)
     --! @details Range: [-2^(N+1), 2^(N+1) - 1]
-    xi : in  std_logic_vector(N + 1 downto 0);
+    xi: in std_logic_vector(N + 1 downto 0);
 
     --! @brief Y-coordinate input (signed integer)
     --! @details Range: [-2^(N+1), 2^(N+1) - 1]
-    yi : in  std_logic_vector(N + 1 downto 0);
+    yi: in std_logic_vector(N + 1 downto 0);
     
     --! @brief Residual angle input (Q0.(N+1) fixed-point)
     --! @details Scaled radians: actual angle = zi × (π/2^(N+1))
-    zi : in  std_logic_vector(N + 1 downto 0);
+    zi: in std_logic_vector(N + 1 downto 0);
 
     --! @brief X-coordinate output (signed integer)
     --! @details Rotated coordinate, same format as input
-    xo : out std_logic_vector(N + 1 downto 0);
+    xo: out std_logic_vector(N + 1 downto 0);
 
     --! @brief Y-coordinate output (signed integer)
     --! @details Rotated coordinate, same format as input
-    yo : out std_logic_vector(N + 1 downto 0);
+    yo: out std_logic_vector(N + 1 downto 0);
 
     --! @brief Residual angle output (Q0.(N+1) fixed-point)
     --! @details Updated angle after rotation, same format as input
-    zo : out std_logic_vector(N + 1 downto 0)
+    zo: out std_logic_vector(N + 1 downto 0)
   );
 end cordic_stage;
 
@@ -91,7 +91,7 @@ architecture dataflow of cordic_stage is
   --! @brief Precomputed elementary angle for this iteration
   --! @details Stored in Q0.(N+1) fixed-point format.
   --! Computed as: EI = round(2^(N+1) / π * arctan(2^-I))  
-  constant EI : signed(zi'range) :=
+  constant EI: signed(zi'range) :=
     to_signed(
       integer(
         round(
@@ -103,25 +103,25 @@ architecture dataflow of cordic_stage is
     );
 
   -- Internal signed versions of inputs
-  signal xi_s : signed(xi'range);  --! Signed version of xi input
-  signal yi_s : signed(yi'range);  --! Signed version of yi input
-  signal zi_s : signed(zi'range);  --! Signed version of zi input
+  signal xi_s: signed(xi'range);  --! Signed version of xi input
+  signal yi_s: signed(yi'range);  --! Signed version of yi input
+  signal zi_s: signed(zi'range);  --! Signed version of zi input
 
   -- Internal signed versions of outputs
-  signal xo_s : signed(xo'range);  --! Signed x output before registration
-  signal yo_s : signed(yo'range);  --! Signed y output before registration
-  signal zo_s : signed(zo'range);  --! Signed z output before registration
+  signal xo_s: signed(xo'range);  --! Signed x output before registration
+  signal yo_s: signed(yo'range);  --! Signed y output before registration
+  signal zo_s: signed(zo'range);  --! Signed z output before registration
   
   --! @brief Rotation sense indicator
   --! @details
   --! di = '0' => counterclockwise rotation  
   --! di = '1' => clockwise rotation
   --! Derived from the sign bit of the residual angle zi.  
-  signal di : std_logic;
+  signal di: std_logic;
 
   -- Shifted coordinate signals
-  signal xi_sra_i : signed(xi'range);  --! xi shifted right arithmetically by I
-  signal yi_sra_i : signed(yi'range);  --! yi shifted right arithmetically by I
+  signal xi_sra_i: signed(xi'range);  --! xi shifted right arithmetically by I
+  signal yi_sra_i: signed(yi'range);  --! yi shifted right arithmetically by I
   
 begin
 
