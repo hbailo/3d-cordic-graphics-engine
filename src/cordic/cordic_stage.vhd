@@ -108,9 +108,9 @@ architecture dataflow of cordic_stage is
   signal zi_s: signed(zi'range);  --! Signed version of zi input
 
   -- Internal signed versions of outputs
-  signal xo_s: signed(xo'range);  --! Signed x output before registration
-  signal yo_s: signed(yo'range);  --! Signed y output before registration
-  signal zo_s: signed(zo'range);  --! Signed z output before registration
+  signal xo_s: signed(xo'range);  --! Signed version of xo output before registration
+  signal yo_s: signed(yo'range);  --! Signed version of yo output before registration
+  signal zo_s: signed(zo'range);  --! Signed version of zo output before registration
   
   --! @brief Rotation sense indicator
   --! @details
