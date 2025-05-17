@@ -24,7 +24,7 @@ use ieee.std_logic_1164.all;
 --!   - Format: 1 sign bit + (N+1) magnitude bits
 --!   - Numerical range: [-2^(N+1), 2^(N+1) - 1]
 --!
---! - Angles (z): Fixed-point radians in Q0.(N+1) format
+--! - Angles (z): Fixed-point scaled radians in Q0.(N+1) format
 --!   - Format: 1 sign bit + 0 integer bits + (N+1) fractional bits
 --!   - Numerical range: [-π, π) where π = 2^(N+1)
 --!   - Resolution: π / 2^(N+1) radians per LSB
@@ -33,7 +33,6 @@ use ieee.std_logic_1164.all;
 --! References:
 --!
 --! [1] Behrooz, P. "Computer Arithmetic". (Oxford University Press, 2010)
-
 entity cordic_stage is
   generic (
     --! @brief Total number of CORDIC iterations in the pipeline
