@@ -75,7 +75,7 @@ entity cordic_stage is
   );
 end cordic_stage;
 
---! @brief Dataflow architecture of the CORDIC stage
+--! @brief Behavioral architecture of the CORDIC stage
 --! @details
 --! Implements the CORDIC rotation iteration using arithmetic shifts
 --! and additions.
@@ -85,7 +85,7 @@ end cordic_stage;
 --! 2. Rotation direction decision logic
 --! 3. Coordinate rotation logic
 --! 4. Registered outputs
-architecture dataflow of cordic_stage is
+architecture behavioral of cordic_stage is
 
   --! @brief Precomputed elementary angle for this iteration
   --! @details Stored in Q0.(N+1) fixed-point format.
@@ -169,4 +169,4 @@ begin
     
   end process;
 
-end dataflow;
+end behavioral;
