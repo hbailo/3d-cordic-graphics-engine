@@ -123,7 +123,6 @@ architecture behavioral of cordic_stage is
   signal yi_sra_i: signed(yi'range);  --! yi shifted right arithmetically by I
   
 begin
-
   -- Input type conversion
   xi_s <= signed(xi);
   yi_s <= signed(yi);
