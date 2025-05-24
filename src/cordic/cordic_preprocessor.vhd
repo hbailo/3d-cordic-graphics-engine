@@ -53,9 +53,15 @@ end entity cordic_preprocessor;
 
 --! @brief Dataflow architecture of the angle range reduction
 --! @details
---! The architecture performs the following operations:
---! 1. Detects whether the input angle lies outside the CORDIC-compatible range [-π/2, π/2].
---! 2. If so, shifts the angle by ±π to bring it into the valid range and simultaneously negates both input coordinates to preserve the direction of rotation.
+--! The architecture performs the following transformation rules:
+--! 1. For zi < -π/2:
+--!    - Angle: z_out = z_in + π
+--!    - Coordinates: (x_out, y_out) = (-x_in, -y_in)
+--! 2. For zi > π/2:
+--!    - Angle: z_out = z_in - π
+--!    - Coordinates: (x_out, y_out) = (-x_in, -y_in)
+--! 3. Otherwise (zi in [-π/2, π/2])
+--!    - Pass-through unchanged
 architecture dataflow of cordic_preprocessor is
   
   --! @brief π/2 constant in Q0.(N+1) format
