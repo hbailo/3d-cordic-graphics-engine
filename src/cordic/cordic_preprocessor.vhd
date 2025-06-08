@@ -28,6 +28,12 @@ entity cordic_preprocessor is
   );
   
   port (
+    --! @brief System clock    
+    clk: in std_logic;
+
+    --! @brief Active-high asynchronous reset    
+    rst: in std_logic;
+    
     --! @brief Initial x-coordinate before rotation (signed integer)
     --! @details Range: [-2^(N+1), 2^(N+1) - 1]
     xi: in std_logic_vector(N + 1 downto 0);
@@ -51,7 +57,7 @@ entity cordic_preprocessor is
   );
 end entity cordic_preprocessor;
 
---! @brief Dataflow architecture of the angle range reduction
+--! @brief Behavioral architecture of the angle range reduction
 --! @details
 --! The architecture performs the following transformation rules:
 --! 1. For zi < -π/2:
@@ -62,7 +68,7 @@ end entity cordic_preprocessor;
 --!    - Coordinates: (x_out, y_out) = (-x_in, -y_in)
 --! 3. Otherwise (zi in [-π/2, π/2])
 --!    - Pass-through unchanged
-architecture dataflow of cordic_preprocessor is
+architecture behavioral of cordic_preprocessor is
   
   --! @brief π/2 constant in Q0.(N+1) format
   constant PI_OVER_2: signed(N + 1 downto 0) := to_signed(2**N, N + 2);
@@ -99,9 +105,24 @@ begin
           zi_s + NEG_PI when zi_s >  PI_OVER_2 else
           zi_s;
 
-  -- Output type conversion
-  xo <= std_logic_vector(xo_s);
-  yo <= std_logic_vector(yo_s);
-  zo <= std_logic_vector(zo_s);  
+  -- Output registration
+  process(clk, rst)
+  begin
+
+    if rst then
+      -- Asynchronous reset
+      xo <= (others => '0');
+      yo <= (others => '0');
+      zo <= (others => '0');
+
+    elsif rising_edge(clk) then
+      -- Registered outputs
+      xo <= std_logic_vector(xo_s);
+      yo <= std_logic_vector(yo_s);
+      zo <= std_logic_vector(zo_s);
+      
+    end if;
+    
+  end process;
   
-end architecture dataflow;
+end architecture behavioral;

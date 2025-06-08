@@ -12,11 +12,18 @@ use ieee.math_real.all;
 --! output coordinates by the reciprocal of the accumulated scaling factor (K):
 --!
 --!     K = ∏(√(1 + 2⁻²ⁱ)) for i = 0 to N - 1
+--! Outputs are registered for direct pipeline implementation.
 --!
 --! Number formats:
 --! - Coordinates (x, y): Signed integers in two's complement format
 --!   - Format: 1 sign bit + (N+1) magnitude bits
 --!   - Numerical range: [-2^(N+1), 2^(N+1) - 1]
+--!
+--! - Angles (z): Fixed-point scaled radians in Q0.(N+1) format
+--!   - Format: 1 sign bit + 0 integer bits + (N+1) fractional bits
+--!   - Numerical range: [-π, π) where π = 2^(N+1)
+--!   - Resolution: π / 2^(N+1) radians per LSB
+--!   - Encoding: z_actual = z_encoded * (π / 2^(N + 1))
 entity cordic_postprocessor is
   generic (
     --! @brief Total number of CORDIC iterations in the pipeline    
@@ -24,6 +31,12 @@ entity cordic_postprocessor is
   );
   
   port (
+    --! @brief System clock    
+    clk: in std_logic;
+
+    --! @brief Active-high asynchronous reset    
+    rst: in std_logic;
+    
     --! @brief X-coordinate input (signed integer)
     --! @details Range: [-2^(N+1), 2^(N+1) - 1]    
     xi: in std_logic_vector(N + 1 downto 0);
@@ -32,21 +45,30 @@ entity cordic_postprocessor is
     --! @details Range: [-2^(N+1), 2^(N+1) - 1]    
     yi: in std_logic_vector(N + 1 downto 0);
 
+    --! @brief Residual angle (Q0.(N+1) fixed-point)
+    zi: in std_logic_vector(N + 1 downto 0);
+
     --! @brief Gain-compensated X-coordinate output (signed integer)
     xo: out std_logic_vector(N + 1 downto 0);
 
     --! @brief Gain-compensated Y-coordinate output (signed integer)    
-    yo: out std_logic_vector(N + 1 downto 0)
+    yo: out std_logic_vector(N + 1 downto 0);
+
+    --! @brief Registered residual angle (Q0.(N+1) fixed-point)
+    --! @details Registered pass-through of input `zi`
+    zo: out std_logic_vector(N + 1 downto 0)
+    
   );
 end entity cordic_postprocessor;
 
---! @brief Dataflow architecture for CORDIC gain compensation
+--! @brief Behavioral architecture for CORDIC gain compensation
 --! @details
 --! The architecture performs the following operations:
 --! 1. Calculates the reciprocal CORDIC gain factor for N iterations
 --! 2. Multiplies input coordinates by the reciprocal gain (1/K)
 --! 3. Truncates the result to maintain the output size
-architecture dataflow of cordic_postprocessor is
+--! 4. Registers outputs
+architecture behavioral of cordic_postprocessor is
 
   --! @brief Calculate the reciprocal CORDIC gain factor
   --! @details
@@ -101,8 +123,24 @@ begin
   xo_s <= resize(shift_right(xi_s * K_INV, N + 1), xo'length);
   yo_s <= resize(shift_right(yi_s * K_INV, N + 1), yo'length);
 
-  -- Output type conversion
-  xo <= std_logic_vector(xo_s);
-  yo <= std_logic_vector(yo_s);
+  -- Output registration
+  process(clk, rst)
+  begin
 
-end architecture dataflow;
+    if rst then
+      -- Asynchronous reset
+      xo <= (others => '0');
+      yo <= (others => '0');
+      zo <= (others => '0');
+
+    elsif rising_edge(clk) then
+      -- Registered outputs
+      xo <= std_logic_vector(xo_s);
+      yo <= std_logic_vector(yo_s);
+      zo <= zi;
+      
+    end if;
+    
+  end process;
+  
+end architecture behavioral;
