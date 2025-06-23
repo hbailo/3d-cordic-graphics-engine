@@ -81,7 +81,7 @@ entity cordic is
     --! @details Updated angle after rotation, same format as input
     zo: out std_logic_vector(N + 1 downto 0);
 
-    --! @brief Output data valid indicator
+    --! @brief Valid output data indicator
     valid: out std_logic
   );
 end cordic;
@@ -152,6 +152,7 @@ begin
   cordic_postprocessor: entity work.cordic_postprocessor
     generic map (
       N => N
+      
     )
     port map (
       clk => clk,
