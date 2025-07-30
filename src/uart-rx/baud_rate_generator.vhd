@@ -20,7 +20,10 @@ use ieee.math_real.all ;
 --!     CLK_DIVIDER = round(CLK_FREQ / (16 × BAUD_RATE))
 --!
 --! @note
---!     Assumes @p CLK_FREQ is significantly higher than 16 x @p BAUD_RATE.
+--!     @p CLK_FREQ and @p BAUD_RATE are constrained such that @p CLK_FREQ is 
+--!     at least twice as large as 16 times @p BAUD_RATE.
+--!
+--! @note
 --!     The output @p baud_x16_ena is a one-clock-cycle-wide pulse.
 entity baud_rate_generator is
   generic (
@@ -28,7 +31,7 @@ entity baud_rate_generator is
     CLK_FREQ: positive;
     
     --! @brief UART baud rate in bits per second
-    BAUD_RATE: positive
+    BAUD_RATE: positive range 1 to CLK_FREQ / 32
   );
   
   port (
