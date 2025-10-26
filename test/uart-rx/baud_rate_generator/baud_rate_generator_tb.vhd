@@ -6,16 +6,19 @@ end baud_rate_generator_tb;
 
 architecture behavioral of baud_rate_generator_tb is
 
-  constant CLK_FREQ : positive := 50_000_000; -- [Hz]
-  constant BAUD_RATE: positive := 115_200;    -- [bps]
+  constant CLK_FREQ  : positive := 50_000_000; -- [Hz]
+  constant BAUD_RATE : positive := 115_200;    -- [bps]
 
-  constant CLK_PERIOD: time := 1 sec / CLK_FREQ;
-  constant BAUD_X16_CLK_PERIOD: time := 1 sec / (16 * BAUD_RATE);
+  constant CLK_PERIOD          : time := 1 sec / CLK_FREQ;
+  constant BAUD_CLK_PERIOD     : time := 1 sec / BAUD_RATE;
+  constant BAUD_X16_CLK_PERIOD : time := 1 sec / (16 * BAUD_RATE);
   
-  signal clk         : std_logic := '0';
-  signal rst         : std_logic := '1';
-  signal baud_x16_ena: std_logic;
-  signal baud_x16_clk: std_logic := '0';
+  signal clk          : std_logic := '1';
+  signal rst          : std_logic := '1';
+  signal ena          : std_logic := '0';
+  signal baud_x16_ena : std_logic;
+  signal baud_x16_clk : std_logic := '0';
+  signal baud_clk     : std_logic := '0';
   
 begin
 
@@ -27,16 +30,20 @@ begin
     port map (
       clk          => clk,
       rst          => rst,
+      ena          => ena,
       baud_x16_ena => baud_x16_ena
     );
 
   clk <= not clk after CLK_PERIOD / 2;
-  rst <= '0' after 2 * CLK_PERIOD;
-
+  
+  rst <= '0' after   2 * CLK_PERIOD;
+  ena <= '1' after  10 * CLK_PERIOD + 1 fs,
+         '0' after 475 * CLK_PERIOD;
+  
   -- Baud x16 clock generation
   process
   begin
-    wait until falling_edge(baud_x16_ena);
+    wait until rising_edge(ena);
     
     loop
       baud_x16_clk <= '1';
@@ -46,5 +53,19 @@ begin
     end loop;
     
   end process;
+
+  -- Baud clock generation
+  process
+  begin
+    wait until rising_edge(ena);
+    
+    loop
+      baud_clk <= '1';
+      wait for BAUD_CLK_PERIOD / 2;
+      baud_clk <= '0';
+      wait for BAUD_CLK_PERIOD / 2;
+    end loop;
+    
+  end process;  
   
 end behavioral;

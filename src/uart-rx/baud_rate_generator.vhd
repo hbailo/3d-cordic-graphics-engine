@@ -40,6 +40,8 @@ entity baud_rate_generator is
     
     --! @brief Asynchronous active-high reset
     rst: in std_logic;
+
+    ena: in std_logic;
     
     --! @brief Clock enable output pulse
     --! @details 1-cycle enable pulse at approximately 16 x baud rate
@@ -84,22 +86,26 @@ begin
     if rst then
       -- Asynchronous reset
       tick_counter <= (others => '0');
-      baud_x16_ena <= '0';
       
     elsif rising_edge(clk) then
-      -- Counter logic
       
-      if tick_counter = CLK_DIVIDER - 1 then
+      if not ena then
+        -- Counter reset when disabled
         tick_counter <= (others => '0');
-        baud_x16_ena <= '1';
+
+      elsif tick_counter = CLK_DIVIDER - 1 then
+        tick_counter <= (others => '0');
         
       else
         tick_counter <= tick_counter + 1;
-        baud_x16_ena <= '0';
+        
       end if;
       
     end if;
     
   end process;
+
+  baud_x16_ena <= '1' when tick_counter = CLK_DIVIDER - 1 else
+                  '0';
   
 end behavioral;
