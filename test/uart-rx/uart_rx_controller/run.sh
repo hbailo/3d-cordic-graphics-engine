@@ -25,15 +25,24 @@ ghdl -r $GHDL_FLAGS uart_rx_controller_tb --stop-time=225us --wave=$wavefile
 
 # Simulation waveform display
 savefile="${WAVEDIR}/uart_rx_controller_tb-${timestamp}.gtkw"
-last_wavefile="${WAVEDIR}/uart_rx_controller_tb-last.ghw"
-last_savefile="${WAVEDIR}/uart_rx_controller_tb-last.gtkw"
+baseline_wavefile="${WAVEDIR}/uart_rx_controller_tb-baseline.ghw"
+baseline_savefile="${WAVEDIR}/uart_rx_controller_tb-baseline.gtkw"
 
-if [ -f "$last_savefile" ]; then
-    cp "$last_savefile" "$savefile"
-    twinwave $wavefile $savefile ++ $last_wavefile $last_savefile
+if [ -f "$baseline_savefile" ]; then
+    cp $baseline_savefile $savefile
+    sed -i -E \
+        -e "s|^\[dumpfile\].*|[dumpfile] \"$(realpath $wavefile)\"|" \
+        -e "s|^\[dumpfile_size\].*|[dumpfile_size] $(stat -c%s $wavefile)|" \
+        -e "s|^\[savefile\].*|[savefile] \"$(realpath $savefile)\"|" \
+        "$savefile"
+    
+    twinwave $wavefile $savefile + $baseline_wavefile $baseline_savefile
 else
     gtkwave --saveonexit $wavefile $savefile
 fi
 
-ln -sf "$(realpath $wavefile)" $last_wavefile
-ln -sf "$(realpath $savefile)" $last_savefile
+latest_wavefile="${WAVEDIR}/uart_rx_controller_tb-latest.ghw"
+latest_savefile="${WAVEDIR}/uart_rx_controller_tb-latest.gtkw"
+
+ln -sf "$(realpath $wavefile)" $latest_wavefile
+ln -sf "$(realpath $savefile)" $latest_savefile

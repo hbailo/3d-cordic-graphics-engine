@@ -39,7 +39,6 @@ architecture behavioral of uart_rx_controller_tb is
   signal baud_clk     : std_logic := '0';
   
 begin
-
   baud_rate_generator: entity work.baud_rate_generator
     generic map (
       CLK_FREQ  => CLK_FREQ,
@@ -51,7 +50,7 @@ begin
       ena          => baud_rate_gen_ena,
       baud_x16_ena => baud_x16_ena
     );  
-
+  
   dut: entity work.uart_rx_controller
     port map (
       clk          => clk,
@@ -66,49 +65,52 @@ begin
   clk <= not clk after CLK_PERIOD / 2;
   rst <= '0' after 2 * CLK_PERIOD;
 
-  -- Stimulus
+  -- Rx stimulus
   process
   begin
     wait until rst = '0';
     wait for 5 * CLK_PERIOD;
 
-    -- send 0x55
     uart_send_byte(rx, b"1110_0101");
-
     wait for 5 * BIT_PERIOD;
 
-    -- send 0xA3
     uart_send_byte(rx, b"0000_1111");
-
     wait;
   end process;
 
-  -- Baud clock generation
+  -- Baud clock. NOTE: for benchmark comparison
   process
   begin
-    wait until rising_edge(baud_rate_gen_ena);
+    wait until rst = '0';
     
     loop
-      baud_clk <= '1';
-      wait for BIT_PERIOD / 2;
-      baud_clk <= '0';
-      wait for BIT_PERIOD / 2;
+      wait until rx = '0';
+      
+      for i in 0 to 9 loop
+        baud_clk <= '1';
+        wait for BIT_PERIOD / 2;
+        baud_clk <= '0';
+        wait for BIT_PERIOD / 2;
+      end loop;      
     end loop;
-    
   end process;
 
-  -- Baud x16 clock generation
+  -- Baud clock x16. NOTE: for benchmark comparison
   process
   begin
-    wait until rising_edge(baud_rate_gen_ena);
+    wait until rst = '0';
     
     loop
-      baud_x16_clk <= '1';
-      wait for BAUD_X16_CLK_PERIOD / 2;
-      baud_x16_clk <= '0';
-      wait for BAUD_X16_CLK_PERIOD / 2;
+      wait until rx = '0';
+      
+      for i in 0 to 9 loop
+        for j in 0 to 15 loop 
+          baud_x16_clk <= '1';
+          wait for BAUD_X16_CLK_PERIOD / 2;
+          baud_x16_clk <= '0';
+          wait for BAUD_X16_CLK_PERIOD / 2;
+        end loop;
+      end loop;
     end loop;
-    
-  end process;  
-  
+  end process;
 end behavioral;
