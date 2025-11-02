@@ -30,14 +30,15 @@ architecture behavioral of uart_rx_controller_tb is
   end procedure;
 
   signal clk               : std_logic := '0';
-  signal rst               : std_logic := '1';
+  signal rst               : std_logic;
   signal rx                : std_logic := '1';
+  signal rx_done           : std_logic;
+  signal rx_data           : std_logic_vector(7 downto 0);
   signal baud_rate_gen_ena : std_logic;
   signal baud_x16_ena      : std_logic;
 
   signal baud_x16_clk : std_logic := '0';
-  signal baud_clk     : std_logic := '0';
-  
+  signal baud_clk     : std_logic := '0';  
 begin
   baud_rate_generator: entity work.baud_rate_generator
     generic map (
@@ -57,13 +58,13 @@ begin
       rst          => rst,
       baud_x16_ena => baud_x16_ena,
       rx           => rx,
-      rx_done      => open,
-      data         => open,
+      rx_done      => rx_done,
+      rx_data      => rx_data,
       baud_rate_gen_ena => baud_rate_gen_ena
     );
   
   clk <= not clk after CLK_PERIOD / 2;
-  rst <= '0' after 2 * CLK_PERIOD;
+  rst <= '1', '0' after 2 * CLK_PERIOD;
 
   -- Rx stimulus
   process

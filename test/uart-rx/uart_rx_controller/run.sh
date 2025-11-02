@@ -8,25 +8,28 @@ readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
 
+# DUT entity
+readonly DUT="uart_rx_controller"
+
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
 ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/baud_rate_generator.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/uart_rx_controller.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/${DUT}.vhd
 
 # Testbench analysis
-ghdl -a $GHDL_FLAGS uart_rx_controller_tb.vhd
+ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
 
 # Testbench simulation
 timestamp=$(date +"%Y-%m-%dT%H-%M-%S")
-wavefile="${WAVEDIR}/uart_rx_controller_tb-${timestamp}.ghw"
+wavefile="$WAVEDIR/${DUT}_tb-${timestamp}.ghw"
 
-ghdl -r $GHDL_FLAGS uart_rx_controller_tb --stop-time=225us --wave=$wavefile
+ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=225us --wave=$wavefile
 
 # Simulation waveform display
-savefile="${WAVEDIR}/uart_rx_controller_tb-${timestamp}.gtkw"
-baseline_wavefile="${WAVEDIR}/uart_rx_controller_tb-baseline.ghw"
-baseline_savefile="${WAVEDIR}/uart_rx_controller_tb-baseline.gtkw"
+savefile="${WAVEDIR}/${DUT}_tb-${timestamp}.gtkw"
+baseline_wavefile="${WAVEDIR}/${DUT}_tb-baseline.ghw"
+baseline_savefile="${WAVEDIR}/${DUT}_tb-baseline.gtkw"
 
 if [ -f "$baseline_savefile" ]; then
     cp $baseline_savefile $savefile
@@ -36,13 +39,13 @@ if [ -f "$baseline_savefile" ]; then
         -e "s|^\[savefile\].*|[savefile] \"$(realpath $savefile)\"|" \
         "$savefile"
     
-    twinwave $wavefile $savefile + $baseline_wavefile $baseline_savefile
+    twinwave $wavefile $savefile ++ $baseline_wavefile $baseline_savefile
 else
     gtkwave --saveonexit $wavefile $savefile
 fi
 
-latest_wavefile="${WAVEDIR}/uart_rx_controller_tb-latest.ghw"
-latest_savefile="${WAVEDIR}/uart_rx_controller_tb-latest.gtkw"
+latest_wavefile="${WAVEDIR}/${DUT}_tb-latest.ghw"
+latest_savefile="${WAVEDIR}/${DUT}_tb-latest.gtkw"
 
 ln -sf "$(realpath $wavefile)" $latest_wavefile
 ln -sf "$(realpath $savefile)" $latest_savefile
