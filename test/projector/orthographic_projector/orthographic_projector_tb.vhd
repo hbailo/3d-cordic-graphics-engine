@@ -13,8 +13,8 @@ architecture behavioral of orthographic_projector_tb is
     signal xi: std_logic_vector(7 downto 0);
     signal yi: std_logic_vector(7 downto 0);
     signal zi: std_logic_vector(7 downto 0);
-    signal xo: std_logic_vector(7 downto 0);
-    signal yo: std_logic_vector(7 downto 0); 
+    signal yo: std_logic_vector(7 downto 0);
+    signal zo: std_logic_vector(7 downto 0); 
 begin
     dut: entity work.orthographic_projector
         generic map (
@@ -26,8 +26,8 @@ begin
             xi  => xi,
             yi  => yi,
             zi  => zi,
-            xo  => xo,
-            yo  => yo
+            yo  => yo,
+            zo  => zo
         );
 
     clk <= not clk after CLK_PERIOD / 2;
@@ -38,15 +38,15 @@ begin
         wait until rst = '1';
         wait until rst = '0';
         
-        assert xo = b"0000_0000" report "xo not cleared after reset" severity error;
-        assert yo = b"0000_0000" report "yo not cleared after reset" severity error;
+        assert yo = b"0000_0000" report "xo not cleared after reset" severity error;
+        assert zo = b"0000_0000" report "yo not cleared after reset" severity error;
         
         xi <= b"0000_0001";
         yi <= b"0000_0010";
         zi <= b"0000_0011";
         wait for CLK_PERIOD;
         
-        assert xo = xi report "xo != xi after clk rising_edge" severity error;
-        assert yo = yi report "yo != yi after clk rising_edge" severity error; 
+        assert yo = yi report "yo != yi after clk rising_edge" severity error;
+        assert zo = zi report "zo != zi after clk rising_edge" severity error; 
     end process;
 end behavioral;

@@ -6,8 +6,8 @@ use ieee.std_logic_1164.all;
 
 --! @brief Orthographic projector for 3D coordinates.
 --! @details
---! Projects 3D coordinates (xi, yi, zi) onto a 2D orthographic plane (xo, yo),
---! discarding the z-axis component. The projection is synchronous to the clock.
+--! Projects 3D coordinates (xi, yi, zi) onto a 2D orthographic plane (yo, zo),
+--! discarding the x-axis component. The projection is synchronous to the clock.
 --! On reset, the outputs are cleared to zero.
 entity orthographic_projector is
     generic (
@@ -23,7 +23,6 @@ entity orthographic_projector is
         --! @details Active high
         rst: in std_logic;
 
-
         --! @brief X-axis input coordinate        
         xi: in std_logic_vector(N-1 downto 0);
         
@@ -33,11 +32,11 @@ entity orthographic_projector is
         --! @brief Z-axis input coordinate        
         zi: in std_logic_vector(N-1 downto 0);
 
-        --! @brief X-axis projected output coordinate                
-        xo: out std_logic_vector(N-1 downto 0);
+        --! @brief Y-axis projected output coordinate                
+        yo: out std_logic_vector(N-1 downto 0);
 
-        --! @brief Y-axis projected output coordinate                        
-        yo: out std_logic_vector(N-1 downto 0)
+        --! @brief Z-axis projected output coordinate                        
+        zo: out std_logic_vector(N-1 downto 0)
     );
 end orthographic_projector;
 
@@ -49,11 +48,11 @@ begin
     process(clk, rst)
     begin
         if rst then
-            xo <= (others => '0');
             yo <= (others => '0');
+            zo <= (others => '0');
         elsif rising_edge(clk) then
-            xo <= xi;
             yo <= yi;
+            zo <= zi;
         end if;
     end process;
 end behavioral;        
