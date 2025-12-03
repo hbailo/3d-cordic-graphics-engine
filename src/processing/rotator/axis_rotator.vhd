@@ -79,30 +79,51 @@ end entity;
 architecture structural of axis_rotator is
     signal ui : std_logic_vector(xi'range);
     signal vi : std_logic_vector(yi'range);
+    signal wi : std_logic_vector(zi'range);
     signal uo : std_logic_vector(xo'range);
     signal vo : std_logic_vector(yo'range);
+    signal wo : std_logic_vector(zo'range);
+    
+    type slv_vector is array(natural range <>) of std_logic_vector;
+    
+    signal axis_comp_shift_reg: slv_vector(0 to DATA_WIDTH - 1)(DATA_WIDTH - 1 downto 0);
 begin
+    --! Shift register for the unchanged AXIS component 
+    process(clk, rst)
+    begin
+        if rst then
+            axis_comp_shift_reg <= (others => (others => '0'));
+        elsif rising_edge(clk) then            
+            axis_comp_shift_reg <= wi & axis_comp_shift_reg(0 to axis_comp_shift_reg'right - 1);
+        end if;
+    end process;
+
+    wo <= axis_comp_shift_reg(axis_comp_shift_reg'right);
+    
     axis_gen: case AXIS generate
         when 'X' =>
             ui <= yi;
             vi <= zi;
-            xo <= xi;
+            wi <= xi;
+            xo <= wo;
             yo <= uo;
             zo <= vo;
             
         when 'Y' =>
             ui <= zi;
             vi <= xi;
+            wi <= yi;
             xo <= vo;            
-            yo <= yi;
+            yo <= wo;
             zo <= uo;            
             
         when 'Z' =>
             ui <= xi;
             vi <= yi;
+            wi <= zi;
             xo <= uo;            
             yo <= vo;
-            zo <= zi;
+            zo <= wo;
 
         when others =>
             assert false 
