@@ -27,43 +27,63 @@ def cordic_preprocessor(xi, yi, zi, data_width):
 DATA_WIDTH = 9
 
 ## Case 1
-xi = 99
-yi = -33
-zi = 0
+xi     = 99
+yi     = -33
+zi     = 0
+zi_deg = zi * 180   /  2**(DATA_WIDTH - 1)
 
 xo, yo, zo = cordic_preprocessor(xi, yi, zi, DATA_WIDTH)
 
-print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi}")
-print(f"(xo, yo) = ({xo:.1f}, {yo:.1f}) | zo = {zo}")
+zo_deg = zo * 180   /  2**(DATA_WIDTH - 1)
+
+print(f"Case 1")
+print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi} = {zi_deg:.0f}º")
+print(f"(xo, yo) = ({xo:.0f}, {yo:.0f}) | zo = {zo} = {zo_deg :.0f}º")
 
 ## Case 2
-zi = 2**(DATA_WIDTH - 2)
+zi     = 2**(DATA_WIDTH - 2)
+zi_deg = zi * 180   /  2**(DATA_WIDTH - 1)
 
 xo, yo, zo = cordic_preprocessor(xi, yi, zi, DATA_WIDTH)
 
-print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi}")
-print(f"(xo, yo) = ({xo:.1f}, {yo:.1f}) | zo = {zo}")
+zo_deg = zo * 180   /  2**(DATA_WIDTH - 1)
+
+print(f"Case 2")
+print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi} = {zi_deg:.0f}º")
+print(f"(xo, yo) = ({xo:.0f}, {yo:.0f}) | zo = {zo} = {zo_deg :.0f}º")
 
 ## Case 3
-zi = 3 * 2**(DATA_WIDTH - 3)
+zi     = 3 * 2**(DATA_WIDTH - 3)
+zi_deg = zi * 180   /  2**(DATA_WIDTH - 1)
 
 xo, yo, zo = cordic_preprocessor(xi, yi, zi, DATA_WIDTH)
 
-print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi}")
-print(f"(xo, yo) = ({xo:.1f}, {yo:.1f}) | zo = {zo}")
+zo_deg = zo * 180   /  2**(DATA_WIDTH - 1)
+
+print(f"Case 3")
+print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi} = {zi_deg:.0f}º")
+print(f"(xo, yo) = ({xo:.0f}, {yo:.0f}) | zo = {zo} = {zo_deg :.0f}º")
 
 ## Case 4
-zi = -3 * 2**(DATA_WIDTH - 3)
+zi     = -3 * 2**(DATA_WIDTH - 3)
+zi_deg = zi * 180   /  2**(DATA_WIDTH - 1)
 
 xo, yo, zo = cordic_preprocessor(xi, yi, zi, DATA_WIDTH)
 
-print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi}")
-print(f"(xo, yo) = ({xo:.1f}, {yo:.1f}) | zo = {zo}")
+zo_deg = zo * 180   /  2**(DATA_WIDTH - 1)
+
+print(f"Case 4")
+print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi} = {zi_deg:.0f}º")
+print(f"(xo, yo) = ({xo:.0f}, {yo:.0f}) | zo = {zo} = {zo_deg :.0f}º")
 
 ## Case 5
-zi = -2**(DATA_WIDTH - 1)
+zi     = -2**(DATA_WIDTH - 1)
+zi_deg = zi * 180   /  2**(DATA_WIDTH - 1)
 
 xo, yo, zo = cordic_preprocessor(xi, yi, zi, DATA_WIDTH)
 
-print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi}")
-print(f"(xo, yo) = ({xo:.1f}, {yo:.1f}) | zo = {zo}")
+zo_deg = zo * 180   /  2**(DATA_WIDTH - 1)
+
+print(f"Case 5")
+print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi} = {zi_deg :.0f}º")
+print(f"(xo, yo) = ({xo:.0f}, {yo:.0f}) | zo = {zo} = {zo_deg :.0f}º")
