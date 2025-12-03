@@ -69,10 +69,10 @@ architecture behavioral of cordic_postprocessor is
     --!
     --! @param iters Number of CORDIC iterations (determines precision)
     --! @return Reciprocal gain factor (1/K) as real value
-    function cordic_reciprocal_gain(iters: positive) return real is
+    function cordic_reciprocal_gain(n_iters: positive) return real is
         variable k: real := 1.0;
     begin
-        for i in 0 to iters - 1 loop
+        for i in 0 to n_iters - 1 loop
             k := k * sqrt(1.0 + 2.0**(-2 * i));
         end loop;
         

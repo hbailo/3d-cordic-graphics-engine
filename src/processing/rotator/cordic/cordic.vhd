@@ -97,23 +97,37 @@ architecture structural of cordic is
     --! @details Used for X, Y, and Z pipeline registers between cordic stages.
     type slv_vector is array(natural range <>) of std_logic_vector;
 
-    --! Internal pipeline signals for X, Y, and Z signals.
-    signal xp: slv_vector(0 to ITERS)(DATA_WIDTH - 1 downto 0);
-    signal yp: slv_vector(0 to ITERS)(DATA_WIDTH - 1 downto 0);
-    signal zp: slv_vector(0 to ITERS)(DATA_WIDTH - 1 downto 0);
+    -- Extended version of internal signals
+    signal xi_ext: std_logic_vector(DATA_WIDTH + 1 downto 0);
+    signal yi_ext: std_logic_vector(DATA_WIDTH + 1 downto 0);
+    signal zi_ext: std_logic_vector(DATA_WIDTH + 1 downto 0);
+
+    signal xo_ext: std_logic_vector(DATA_WIDTH + 1 downto 0);
+    signal yo_ext: std_logic_vector(DATA_WIDTH + 1 downto 0);
+    signal zo_ext: std_logic_vector(DATA_WIDTH + 1 downto 0);
+    
+    -- Internal pipeline signals for X, Y, and Z signals.
+    signal xp: slv_vector(0 to ITERS)(DATA_WIDTH + 1 downto 0);
+    signal yp: slv_vector(0 to ITERS)(DATA_WIDTH + 1 downto 0);
+    signal zp: slv_vector(0 to ITERS)(DATA_WIDTH + 1 downto 0);
 begin
+    -- Input data extension
+    xi_ext <= std_logic_vector(resize(signed(xi), DATA_WIDTH + 2));
+    yi_ext <= std_logic_vector(resize(signed(yi), DATA_WIDTH + 2));
+    zi_ext <= std_logic_vector(resize(signed(zi), DATA_WIDTH + 2));
+          
     --! @brief Input preprocessing stage
     --! @details Maps input angle from [-π, π] to [-π/2, π/2].
     cordic_preprocessor: entity work.cordic_preprocessor
         generic map (
-            DATA_WIDTH => DATA_WIDTH
+            DATA_WIDTH => DATA_WIDTH + 2
         )
         port map (
             clk => clk,
             rst => rst,
-            xi  => xi,
-            yi  => yi,
-            zi  => zi,
+            xi  => xi_ext,
+            yi  => yi_ext,
+            zi  => zi_ext,
             xo  => xp(0),
             yo  => yp(0),
             zo  => zp(0)      
@@ -124,9 +138,9 @@ begin
     cordic_pipeline: for i in 0 to ITERS - 1 generate
         cordic_stage_i: entity work.cordic_stage
             generic map (
-                DATA_WIDTH => DATA_WIDTH,
-                ITERS => ITERS,
-                I => i
+                DATA_WIDTH => DATA_WIDTH + 2,
+                ITERS      => ITERS,
+                I          => i
             )
             port map (
                 clk => clk,
@@ -144,7 +158,7 @@ begin
     --! @details Compensates for CORDIC gain by multiplying by 1/K.
     cordic_postprocessor: entity work.cordic_postprocessor
         generic map (
-            DATA_WIDTH => DATA_WIDTH,
+            DATA_WIDTH => DATA_WIDTH + 2,
             ITERS      => ITERS
         )
         port map (
@@ -153,9 +167,9 @@ begin
             xi  => xp(ITERS),
             yi  => yp(ITERS),
             zi  => zp(ITERS),
-            xo  => xo,
-            yo  => yo,
-            zo  => zo
+            xo  => xo_ext,
+            yo  => yo_ext,
+            zo  => zo_ext
         ); 
 
     --! @brief Pipeline synchronization controller
@@ -170,5 +184,10 @@ begin
             rst   => rst,
             start => start,
             valid => valid
-        ); 
+        );
+
+    -- Output data reduction
+    xo <= std_logic_vector(resize(signed(xo_ext), DATA_WIDTH));
+    yo <= std_logic_vector(resize(signed(yo_ext), DATA_WIDTH));
+    zo <= std_logic_vector(resize(signed(zo_ext), DATA_WIDTH));    
 end architecture;
