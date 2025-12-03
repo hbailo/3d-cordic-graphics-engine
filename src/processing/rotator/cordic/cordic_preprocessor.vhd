@@ -10,6 +10,7 @@ use ieee.std_logic_1164.all;
 --! This module performs angle range reduction for CORDIC algorithm, mapping
 --! input angles from [-π, π] range to [-π/2, π/2] range while preserving
 --! the original rotation through coordinate quadrant adjustments.
+--! It extends the output coordinates and angles to avoid overflow.
 entity cordic_preprocessor is
     generic (
         --! Coordinates and angles bit width
@@ -32,14 +33,14 @@ entity cordic_preprocessor is
         --! Initial rotation angle
         zi: in std_logic_vector(DATA_WIDTH - 1 downto 0);
 
-        --! Adjusted x-coordinate after quadrant adjustment
-        xo: out std_logic_vector(DATA_WIDTH - 1 downto 0);
+        --! Adjusted extended x-coordinate after quadrant adjustment
+        xo: out std_logic_vector(DATA_WIDTH + 1 downto 0);
 
-        --! Adjusted y-coordinate after quadrant adjustment
-        yo: out std_logic_vector(DATA_WIDTH - 1 downto 0);
+        --! Adjusted extended y-coordinate after quadrant adjustment
+        yo: out std_logic_vector(DATA_WIDTH + 1 downto 0);
 
-        --! Reduced rotation angle after quadrant adjustment
-        zo: out std_logic_vector(DATA_WIDTH - 1 downto 0)
+        --! Reduced extended rotation angle after quadrant adjustment
+        zo: out std_logic_vector(DATA_WIDTH + 1 downto 0)
     );
 end entity;
 
@@ -56,15 +57,15 @@ end entity;
 --!    - Pass-through unchanged
 architecture behavioral of cordic_preprocessor is
     --! π/2 constant in Q0.(DATA_WIDTH - 1) format
-    constant PI_OVER_2: signed(zi'range) := to_signed(2**(DATA_WIDTH - 2), DATA_WIDTH);
+    constant PI_OVER_2: signed(zo'range) := to_signed(2**(zi'length - 2), zo'length);
 
     --! -π constant in Q0.(DATA_WIDTH - 1) format 
-    constant NEG_PI: signed(zi'range) := to_signed(-2**(DATA_WIDTH - 1), DATA_WIDTH); 
+    constant NEG_PI: signed(zo'range) := to_signed(-2**(zi'length - 1), zo'length); 
 
     -- Internal signed versions of inputs
-    signal xi_s: signed(xi'range);  --! Signed version of xi input
-    signal yi_s: signed(yi'range);  --! Signed version of yi input
-    signal zi_s: signed(zi'range);  --! Signed version of zi input
+    signal xi_s: signed(xo'range);  --! Signed extended version of xi input
+    signal yi_s: signed(yo'range);  --! Signed extended version of yi input
+    signal zi_s: signed(zo'range);  --! Signed extended version of zi input
 
     -- Internal signed versions of outputs
     signal xo_s: signed(xo'range);  --! Signed version of xo output 
@@ -72,10 +73,10 @@ architecture behavioral of cordic_preprocessor is
     signal zo_s: signed(zo'range);  --! Signed version of zo output
     
 begin
-    -- Input type conversion
-    xi_s <= signed(xi);
-    yi_s <= signed(yi);
-    zi_s <= signed(zi);
+    -- Input type conversion and extension
+    xi_s <= resize(signed(xi), xi_s'length);
+    yi_s <= resize(signed(yi), yi_s'length);
+    zi_s <= resize(signed(zi), zi_s'length);
 
     -- Coordinate adjustment
     xo_s <= -xi_s when (zi_s < -PI_OVER_2 or zi_s > PI_OVER_2) else

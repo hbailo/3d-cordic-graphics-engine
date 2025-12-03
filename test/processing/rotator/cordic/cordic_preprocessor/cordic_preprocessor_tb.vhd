@@ -23,9 +23,9 @@ architecture behavioral of cordic_preprocessor_tb is
     signal xi  : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal yi  : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal zi  : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal xo  : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal yo  : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal zo  : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal xo  : std_logic_vector(DATA_WIDTH + 1 downto 0);
+    signal yo  : std_logic_vector(DATA_WIDTH + 1 downto 0);
+    signal zo  : std_logic_vector(DATA_WIDTH + 1 downto 0);
 begin
     dut: entity work.cordic_preprocessor
         generic map (

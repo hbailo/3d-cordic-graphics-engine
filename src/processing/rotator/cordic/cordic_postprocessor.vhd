@@ -34,13 +34,13 @@ entity cordic_postprocessor is
         rst: in std_logic;
         
         --! X-coordinate input
-        xi: in std_logic_vector(DATA_WIDTH - 1 downto 0);
+        xi: in std_logic_vector(DATA_WIDTH + 1 downto 0);
 
         --! Y-coordinate input
-        yi: in std_logic_vector(DATA_WIDTH - 1 downto 0);
+        yi: in std_logic_vector(DATA_WIDTH + 1 downto 0);
         
         --! Residual rotation angle
-        zi: in std_logic_vector(DATA_WIDTH - 1 downto 0);
+        zi: in std_logic_vector(DATA_WIDTH + 1 downto 0);
 
         --! @brief Gain-compensated X-coordinate output
         xo: out std_logic_vector(DATA_WIDTH - 1 downto 0);
@@ -80,16 +80,16 @@ architecture behavioral of cordic_postprocessor is
     end function;
 
     --! @brief Reciprocal CORDIC gain constant for ITERS iterations
-    --! @details Stored as fixed-point value with scaling factor 2^(DATA_WIDTH - 1)
-    constant K_INV: signed(DATA_WIDTH - 1 downto 0) :=
+    --! @details Stored as fixed-point value with scaling factor 2^(DATA_WIDTH + 1)
+    constant K_INV: signed(DATA_WIDTH + 1 downto 0) :=
         to_signed(
             integer(
                 round(
-                    2.0**(DATA_WIDTH - 1) *        -- Scaling factor
+                    2.0**(DATA_WIDTH + 1) *        -- Scaling factor
                     cordic_reciprocal_gain(ITERS)  -- CORDIC reciprocal gain
                     )
                 ),
-            DATA_WIDTH
+            DATA_WIDTH + 2
             );
     
     -- Internal signed versions of inputs
@@ -105,8 +105,8 @@ begin
     yi_s <= signed(yi);
     
     -- Gain correction
-    xo_s <= resize(shift_right(xi_s * K_INV, DATA_WIDTH - 1), DATA_WIDTH);
-    yo_s <= resize(shift_right(yi_s * K_INV, DATA_WIDTH - 1), DATA_WIDTH);
+    xo_s <= resize(shift_right(xi_s * K_INV, DATA_WIDTH + 1), xo_s'length);
+    yo_s <= resize(shift_right(yi_s * K_INV, DATA_WIDTH + 1), yo_s'length);
 
     -- Output registers
     process(clk, rst)
@@ -118,7 +118,7 @@ begin
         elsif rising_edge(clk) then
             xo <= std_logic_vector(xo_s);
             yo <= std_logic_vector(yo_s);
-            zo <= zi;
+            zo <= std_logic_vector(resize(signed(zi), zo'length));
         end if;
     end process;
 end architecture;

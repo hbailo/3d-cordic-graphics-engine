@@ -14,9 +14,9 @@ architecture behavioral of cordic_postprocessor_tb is
     -- DUT signals
     signal clk : std_logic := '0';
     signal rst : std_logic;
-    signal xi  : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal yi  : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal zi  : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal xi  : std_logic_vector(DATA_WIDTH + 1 downto 0);
+    signal yi  : std_logic_vector(DATA_WIDTH + 1 downto 0);
+    signal zi  : std_logic_vector(DATA_WIDTH + 1 downto 0);
     signal xo  : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal yo  : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal zo  : std_logic_vector(DATA_WIDTH - 1 downto 0);      
@@ -44,9 +44,9 @@ begin
         wait until rst = '1';
         
         wait until rising_edge(clk);
-        xi <= std_logic_vector(to_signed(99, DATA_WIDTH));
-        yi <= std_logic_vector(to_signed(-33, DATA_WIDTH));
-        zi <= std_logic_vector(to_signed(1, DATA_WIDTH));
+        xi <= std_logic_vector(to_signed(99, xi'length));
+        yi <= std_logic_vector(to_signed(-33, yi'length));
+        zi <= std_logic_vector(to_signed(1, zi'length));
         
         wait;
     end process;                    
