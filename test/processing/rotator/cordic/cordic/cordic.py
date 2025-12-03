@@ -1,5 +1,15 @@
+import math as m
 import numpy as np
 from math import sqrt
+
+def rot(x, y, angle):
+  c = m.cos(angle)
+  s = m.sin(angle)
+
+  xo = c * xi - s * yi
+  yo = s * xi + c * yi
+  
+  return xo, yo
 
 def cordic_preprocessor(xi, yi, zi, data_width):
     """
@@ -76,27 +86,57 @@ xi = 99
 yi = -33
 zi = -2**(DATA_WIDTH - 2) + 31
 
+print("================================")
+print("Case 1")
+print(f"(xi, yi, zi) = ({xi}, {yi}, {zi})")
+
 xo, yo, zo = cordic(xi, yi, zi, DATA_WIDTH, ITERS)
 
-print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi}")
-print(f"(xo, yo) = ({xo:.1f}, {yo:.1f}) | zo = {zo}")
+print(f"Cordic: (xo, yo, zo) = ({xo:.1f}, {yo:.1f}, {zo})")
+
+zi_rad = zi * np.pi / 2**(DATA_WIDTH - 1)
+zi_deg = zi * 180   /  2**(DATA_WIDTH - 1)
+
+xo, yo = rot(xi, yi, zi_rad)
+
+print(f"Math: (xo, yo) = ({xo:.1f}, {yo:.1f}) | zi_deg = {zi_deg}")
 
 ## Case 3
 xi = 128
 yi = -128
 zi = -2**(DATA_WIDTH - 1)
 
+print("================================")
+print("Case 3")
+print(f"(xi, yi, zi) = ({xi}, {yi}, {zi})")
+
 xo, yo, zo = cordic(xi, yi, zi, DATA_WIDTH, ITERS)
 
-print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi}")
-print(f"(xo, yo) = ({xo:.1f}, {yo:.1f}) | zo = {zo}")
+print(f"Cordic: (xo, yo, zo) = ({xo:.1f}, {yo:.1f}, {zo})")
+
+zi_rad = zi * np.pi / 2**(DATA_WIDTH - 1)
+zi_deg = zi * 180   /  2**(DATA_WIDTH - 1)
+
+xo, yo = rot(xi, yi, zi_rad)
+
+print(f"Math: (xo, yo) = ({xo:.1f}, {yo:.1f}) | zi_deg = {zi_deg}")
 
 ## Case 5
 xi = 0
 yi = 0
 zi = 0
 
+print("================================")
+print("Case 5")
+print(f"(xi, yi, zi) = ({xi}, {yi}, {zi})")
+
 xo, yo, zo = cordic(xi, yi, zi, DATA_WIDTH, ITERS)
 
-print(f"(xi, yi) = ({xi}, {yi}) | zi = {zi}")
-print(f"(xo, yo) = ({xo:.1f}, {yo:.1f}) | zo = {zo}")
+print(f"Cordic: (xo, yo, zo) = ({xo:.1f}, {yo:.1f}, {zo})")
+
+zi_rad = zi * np.pi / 2**(DATA_WIDTH - 1)
+zi_deg = zi * 180   /  2**(DATA_WIDTH - 1)
+
+xo, yo = rot(xi, yi, zi_rad)
+
+print(f"Math: (xo, yo) = ({xo:.1f}, {yo:.1f}) | zi_deg = {zi_deg}")
