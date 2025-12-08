@@ -1,5 +1,6 @@
-# Doxygen output folder
+# Doxygen
 doc/doxygen
+Doxyfile.bak
 
 # Build folder
 build
