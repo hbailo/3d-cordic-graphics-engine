@@ -34,11 +34,11 @@ entity orthographic_projector is
         --! Z coordinate input
         zi : in std_logic_vector(DATA_WIDTH - 1 downto 0);
 
-        --! x projected coordinate
-        x : out std_logic_vector(DATA_WIDTH - 1 downto 0);
-
         --! y projected coordinate
-        y : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+        yo : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+
+        --! z projected coordinate
+        zo : out std_logic_vector(DATA_WIDTH - 1 downto 0);
 
         --! Valid output flag
         valid : out std_logic
@@ -53,12 +53,12 @@ begin
     process(clk, rst)
     begin
         if rst then
-            x     <= (others => '0');
-            y     <= (others => '0');
+            yo     <= (others => '0');
+            zo     <= (others => '0');
             valid <= '0';
         elsif rising_edge(clk) then
-            x     <= yi;
-            y     <= zi;
+            yo     <= yi;
+            zo     <= zi;
             valid <= start;
         end if;
     end process;

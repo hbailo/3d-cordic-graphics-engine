@@ -18,8 +18,8 @@ architecture behavioral of orthographic_projector_tb is
     signal xi    : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal yi    : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal zi    : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal x     : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal y     : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal z     : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal valid : std_logic; 
 begin
     dut: entity work.orthographic_projector
@@ -33,8 +33,8 @@ begin
             xi    => xi,
             yi    => yi,
             zi    => zi,
-            x     => x,
-            y     => y,
+            yo    => y,
+            zo    => z,
             valid => valid
         );
 
