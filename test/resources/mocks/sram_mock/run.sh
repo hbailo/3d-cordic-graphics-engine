@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Paths definitions
 readonly SRCDIR="../../../src"
-readonly WORKDIR="../../../build"
+readonly WORKDIR="./build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
