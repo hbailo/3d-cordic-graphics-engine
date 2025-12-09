@@ -18,7 +18,7 @@ architecture behavioral of memory_loader_tb is
     signal uart_read  : std_logic;
     signal sram_ready : std_logic;
     signal sram_addr  : std_logic_vector(17 downto 0);
-    signal sram_data  : std_logic_vector(31 downto 0);
+    signal sram_din   : std_logic_vector(31 downto 0);
     signal sram_start : std_logic;
     signal sram_rw    : std_logic;
     signal loaded     : std_logic;
@@ -35,7 +35,7 @@ begin
             uart_read  => uart_read,
             sram_ready => sram_ready,
             sram_addr  => sram_addr,
-            sram_data  => sram_data,
+            sram_din   => sram_din,
             sram_start => sram_start,
             sram_rw    => sram_rw,
             loaded     => loaded

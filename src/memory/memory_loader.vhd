@@ -38,7 +38,7 @@ entity memory_loader is
         sram_addr: out std_logic_vector(17 downto 0);
         
         --! Data to be written to SRAM             
-        sram_data: out std_logic_vector(31 downto 0);
+        sram_din: out std_logic_vector(31 downto 0);
 
         --! Start a SRAM write
         sram_start: out std_logic;
@@ -143,7 +143,7 @@ begin
     process(all)
     begin
         sram_rw    <= '0';
-        sram_data  <= data_point;
+        sram_din   <= data_point;
         sram_addr  <= std_logic_vector(data_point_index);
         sram_start <= sram_ready when next_state = WRITING_DATA_POINT else
                       '0';        
