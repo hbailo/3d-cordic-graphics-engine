@@ -113,7 +113,7 @@ begin
         if rst then
             data_point_index <= (others => '0');
         elsif rising_edge(clk) then
-            if state = RESTARTING_READING then
+            if next_state = RESTARTING_READING then
                 data_point_index <= (others => '0');
             elsif state = READING then
                 if sram_start = '1' then
@@ -125,13 +125,13 @@ begin
 
     sram_rw    <= '1';
     sram_addr  <= std_logic_vector(data_point_index);
-    sram_start <= sram_ready when next_state = READING else
+    sram_start <= sram_ready when state = READING else
                   '0';
 
     x <= sram_dout(31 downto 31 - DATA_WIDTH + 1);
     y <= sram_dout(31 - DATA_WIDTH downto 31 - 2 * DATA_WIDTH + 1);
     z <= sram_dout(31 - 2 * DATA_WIDTH downto 31 - 3 * DATA_WIDTH + 1);
     
-    valid <= sram_ready when state = READING and sram_ready = '1' else
+    valid <= sram_ready when state = READING else
              '0';
 end architecture;
