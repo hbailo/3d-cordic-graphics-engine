@@ -228,7 +228,7 @@ begin
     begin
         wait until sram_loaded = '1';
         
-        for i in 0 to DATA_POINTS loop
+        for i in 0 to DATA_POINTS - 1 loop
             wait until rising_edge(valid_sram_read);            
 
             write(L, integer(to_integer(signed(x))));
