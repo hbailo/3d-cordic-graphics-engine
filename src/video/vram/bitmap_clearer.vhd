@@ -119,7 +119,8 @@ begin
     process(clk, rst)    
     begin
         if rst then
-            ready <= '1';
+            vram_we <= '0';
+            ready   <= '1';
         elsif rising_edge(clk) then
             case next_state is
             when IDLE =>
