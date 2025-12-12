@@ -18,10 +18,10 @@ use ieee.math_real.all;
 --!   - a fixed pixel value (`vram_din = '1'`)
 --!
 --! Coordinate mapping:
---!   - Input range:    x,y ∈ [-1, 1), in signed Q0.(DATA_WIDTH - 1) fixed point
+--!   - Input range:    x,y : [-1, 1), in signed Q0.(DATA_WIDTH - 1) fixed point
 --!                                    format
---!   - Output range:   x_px ∈ [0, WIDTH_PX )
---!                     y_px ∈ [0, HEIGHT_PX)
+--!   - Output range:   x_px : [0, WIDTH_PX )
+--!                     y_px : [0, HEIGHT_PX)
 --!   - Address:        addr = y_px * WIDTH_PX + x_px
 entity bitmap_drawer is
     generic (
