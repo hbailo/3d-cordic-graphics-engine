@@ -42,7 +42,7 @@ ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
 timestamp=$(date +"%Y-%m-%dT%H-%M-%S")
 wavefile="$WAVEDIR/${DUT}_tb-${timestamp}.ghw"
 
-ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=40ms --wave=$wavefile
+ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=150ms --wave=$wavefile
 
 # Simulation waveform display
 savefile="${WAVEDIR}/${DUT}_tb-${timestamp}.gtkw"
