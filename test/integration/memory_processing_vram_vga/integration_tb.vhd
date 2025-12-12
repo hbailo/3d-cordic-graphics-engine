@@ -2,6 +2,7 @@ library ieee;
 use ieee.math_real.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_textio.all;
 use std.textio.all;
 
 entity integration_tb is
@@ -63,11 +64,30 @@ architecture behavioral of integration_tb is
     signal lb_n_b : std_logic;
 
     constant SRAM_MOCK_ADDR_WIDTH: positive := integer(ceil(log2(real(DATA_POINTS))));
+
+    -- UI
+    constant DEBOUNCE_PERIOD_MS : positive := 20;
+    constant ANGULAR_VEL_DEG_S  : positive := 45;
+    
+    signal x_angle         : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal x_angle_up_sw   : std_logic := '0';
+    signal x_angle_up      : std_logic;
+    signal x_angle_down_sw : std_logic := '0';    
+    signal x_angle_down    : std_logic;
+
+    signal y_angle         : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal y_angle_up_sw   : std_logic := '0';
+    signal y_angle_up      : std_logic;
+    signal y_angle_down_sw : std_logic := '0';    
+    signal y_angle_down    : std_logic;
+    
+    signal z_angle         : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal z_angle_up_sw   : std_logic := '0';
+    signal z_angle_up      : std_logic;
+    signal z_angle_down_sw : std_logic := '0';
+    signal z_angle_down    : std_logic;
     
     -- Rotator
-    signal x_angle    : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
-    signal y_angle    : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
-    signal z_angle    : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
     signal x_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal y_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);    
     signal z_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);
@@ -90,17 +110,14 @@ architecture behavioral of integration_tb is
     signal refresh_tick : std_logic;
     signal h_sync       : std_logic;
     signal v_sync       : std_logic;
-    signal red          : std_logic;
-    signal green        : std_logic;
-    signal blue         : std_logic;
+    signal red          : std_logic_vector(0 downto 0);
+    signal green        : std_logic_vector(0 downto 0);
+    signal blue         : std_logic_vector(0 downto 0);
     
     -- VRAM    
     signal vram_we      : std_logic;
     signal vram_w_addr  : std_logic_vector(VRAM_ADDR_WIDTH - 1 downto 0);
     signal vram_din     : std_logic;
-
-    -- VRAM dump
-    signal vram_dump: std_logic;
 begin
     memory_loader: entity work.memory_loader
         generic map (
@@ -207,7 +224,131 @@ begin
             ub_n => ub_n_b,
             lb_n => lb_n_b
         );
+    
+    --! Rotation angle user interface
+    --! X angle up button debouncer       
+    x_angle_up_sw_db: entity work.switch_debouncer
+        generic map (
+            CLK_FREQ_HZ        => CLK_FREQ_HZ,
+            DEBOUNCE_PERIOD_MS => DEBOUNCE_PERIOD_MS
+        )
+        port map (
+            clk   => clk,
+            rst   => rst,
+            sw    => x_angle_up_sw,
+            sw_db => x_angle_up
+        );
+    
+    --! X angle down button debouncer           
+    x_angle_down_sw_db: entity work.switch_debouncer
+        generic map (
+            CLK_FREQ_HZ        => CLK_FREQ_HZ,
+            DEBOUNCE_PERIOD_MS => DEBOUNCE_PERIOD_MS
+        )
+        port map (
+            clk   => clk,
+            rst   => rst,
+            sw    => x_angle_down_sw,
+            sw_db => x_angle_down
+        );
 
+    --! X angle stepper    
+    x_angle_stepper: entity work.angle_stepper
+        generic map (
+            ANGLE_WIDTH       => DATA_WIDTH,
+            CLK_FREQ_HZ       => CLK_FREQ_HZ,
+            ANGULAR_VEL_DEG_S => ANGULAR_VEL_DEG_S            
+        )
+        port map (
+            clk   => clk,
+            rst   => rst,
+            up    => x_angle_up,
+            down  => x_angle_down,
+            angle => x_angle
+        );
+
+    --! Y angle up button debouncer             
+    y_angle_up_sw_db: entity work.switch_debouncer
+        generic map (
+            CLK_FREQ_HZ        => CLK_FREQ_HZ,
+            DEBOUNCE_PERIOD_MS => DEBOUNCE_PERIOD_MS
+        )
+        port map (
+            clk   => clk,
+            rst   => rst,
+            sw    => y_angle_up_sw,
+            sw_db => y_angle_up
+        );
+
+    --! Y angle down button debouncer         
+    y_angle_down_sw_db: entity work.switch_debouncer
+        generic map (
+            CLK_FREQ_HZ        => CLK_FREQ_HZ,
+            DEBOUNCE_PERIOD_MS => DEBOUNCE_PERIOD_MS
+        )
+        port map (
+            clk   => clk,
+            rst   => rst,
+            sw    => y_angle_down_sw,
+            sw_db => y_angle_down
+        );
+
+    --! Y angle stepper    
+    y_angle_stepper: entity work.angle_stepper
+        generic map (
+            ANGLE_WIDTH       => DATA_WIDTH,
+            CLK_FREQ_HZ       => CLK_FREQ_HZ,
+            ANGULAR_VEL_DEG_S => ANGULAR_VEL_DEG_S 
+        )
+        port map (
+            clk   => clk,
+            rst   => rst,
+            up    => y_angle_up,
+            down  => y_angle_down,
+            angle => y_angle
+        );
+
+    --! Z angle up button debouncer     
+    z_angle_up_sw_db: entity work.switch_debouncer
+        generic map (
+            CLK_FREQ_HZ        => CLK_FREQ_HZ,
+            DEBOUNCE_PERIOD_MS => DEBOUNCE_PERIOD_MS
+        )
+        port map (
+            clk   => clk,
+            rst   => rst,
+            sw    => z_angle_up_sw,
+            sw_db => z_angle_up
+        );
+
+    --! Z angle down button debouncer 
+    z_angle_down_sw_db: entity work.switch_debouncer
+        generic map (
+            CLK_FREQ_HZ        => CLK_FREQ_HZ,
+            DEBOUNCE_PERIOD_MS => DEBOUNCE_PERIOD_MS
+        )
+        port map (
+            clk   => clk,
+            rst   => rst,
+            sw    => z_angle_down_sw,
+            sw_db => z_angle_down
+        );
+
+    --! Z angle stepper
+    z_angle_stepper: entity work.angle_stepper
+        generic map (
+            ANGLE_WIDTH       => DATA_WIDTH,
+            CLK_FREQ_HZ       => CLK_FREQ_HZ,
+            ANGULAR_VEL_DEG_S => ANGULAR_VEL_DEG_S 
+        )
+        port map (
+            clk   => clk,
+            rst   => rst,
+            up    => z_angle_up,
+            down  => z_angle_down,
+            angle => z_angle
+        );
+    
     --! 3D rotator
     rotator: entity work.xyz_rotator
         generic map (
@@ -277,7 +418,7 @@ begin
             addr_a    => vram_w_addr,
             addr_b    => vram_r_addr,
             din_a     => (0 => vram_din),
-            dout_a(0) => vram_dump,
+            dout_a    => open,
             dout_b(0) => vram_dout
         );
 
@@ -297,9 +438,9 @@ begin
             refresh_tick => refresh_tick,
             h_sync       => h_sync,
             v_sync       => v_sync,
-            red          => red,
-            green        => green,
-            blue         => blue
+            red          => red(0),
+            green        => green(0),
+            blue         => blue(0)
         );
     
     clk <= not clk after CLK_PERIOD / 2;
@@ -355,29 +496,51 @@ begin
         
         wait;
     end process;
-    
-    dump_vram: process
-        file dump_file : text open write_mode is "./build/vram_dump.txt";        
-        variable L     : line;
+
+    -- UI simulation
+    ui: process
     begin
-        wait until rst = '0';
-        wait until rising_edge(clk);
+        x_angle_up_sw   <= '1' after 20 ms, '0' after 55 ms;
+        y_angle_down_sw <= '1' after 40 ms, '0' after 75 ms;
+        z_angle_down_sw <= '1' after 60 ms;        
+                
         
-        wait until refresh_tick = '1';
-        
-        while True loop
-            if vram_w_addr /= "0" then
-                write(L, integer(to_integer(unsigned(vram_w_addr))));
-                write(L, string'(": "));
-                wait until rising_edge(clk);                            
-                write(L, vram_dump);
-            end if;
-            
-            writeline(dump_file, L);
-            L := null;
-            
-            wait until rising_edge(vram_we);
-        end loop;
         wait;
+    end process;
+    
+    -- VGA dump
+    -- RATIONALE: https://ericeastwood.com/blog/vga-simulator-getting-started/
+    vga_dump: process(clk)
+        file dump_file   : text open write_mode is "./build/vga_dump.txt";        
+        variable line_el : line;
+    begin
+        if rising_edge(clk) then
+            -- Write the time
+            write(line_el, now); 
+            write(line_el, string'(":"));
+
+            -- Write the hsync
+            write(line_el, string'(" "));            
+            write(line_el, h_sync);
+
+            -- Write the vsync
+            write(line_el, string'(" "));            
+            write(line_el, v_sync);
+
+            -- Write the red
+            write(line_el, string'(" "));
+            write(line_el, std_logic_vector(resize(signed(red), 3)));
+
+            -- Write the green
+            write(line_el, string'(" "));
+            write(line_el, std_logic_vector(resize(signed(green), 3)));                        
+
+            -- Write the blue
+            write(line_el, string'(" "));
+            write(line_el, std_logic_vector(resize(signed(blue), 2)));                        
+
+            -- write the contents into the file
+            writeline(dump_file, line_el);
+        end if;
     end process;
 end architecture;
