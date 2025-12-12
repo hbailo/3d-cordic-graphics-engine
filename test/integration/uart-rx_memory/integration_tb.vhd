@@ -91,9 +91,9 @@ begin
         port map (
             clk        => clk,
             rst        => rst,
-            uart_data  => rx_buffer,
-            uart_empty => rx_empty,
-            uart_read  => rx_read,
+            rx_buffer  => rx_buffer,
+            rx_empty   => rx_empty,
+            rx_read    => rx_read,
             sram_ready => sram_ready,
             sram_addr  => loader_sram_addr,
             sram_din   => sram_din,

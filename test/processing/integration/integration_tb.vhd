@@ -17,14 +17,14 @@ architecture behavioral of integration_tb is
     
     -- DUT signals
     signal clk        : std_logic := '0';
-    signal rst        : std_logic;
-    signal start_rot  : std_logic;
-    signal x          : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal y          : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal z          : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal x_angle    : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal y_angle    : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal z_angle    : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal rst        : std_logic := '0';
+    signal start_rot  : std_logic := '0';
+    signal x          : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+    signal y          : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+    signal z          : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+    signal x_angle    : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+    signal y_angle    : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+    signal z_angle    : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
     signal x_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal y_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);    
     signal z_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);

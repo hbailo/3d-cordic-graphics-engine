@@ -19,10 +19,10 @@ architecture behavioral of cordic_preprocessor_tb is
     
     -- DUT signals
     signal clk : std_logic := '0';
-    signal rst : std_logic;
-    signal xi  : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal yi  : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal zi  : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal rst : std_logic := '0';
+    signal xi  : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+    signal yi  : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+    signal zi  : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
     signal xo  : std_logic_vector(DATA_WIDTH + 1 downto 0);
     signal yo  : std_logic_vector(DATA_WIDTH + 1 downto 0);
     signal zo  : std_logic_vector(DATA_WIDTH + 1 downto 0);

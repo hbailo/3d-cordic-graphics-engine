@@ -28,9 +28,9 @@ architecture behavioral of integration_tb is
     -- SRAM loader
     constant DATA_POINTS : positive := 11946;
 
-    signal uart_data         : std_logic_vector(7 downto 0);
-    signal uart_empty        : std_logic;
-    signal uart_read         : std_logic;
+    signal rx_buffer         : std_logic_vector(7 downto 0);
+    signal rx_empty        : std_logic;
+    signal rx_read         : std_logic;
     signal sram_loaded       : std_logic;
     signal loader_sram_addr  : std_logic_vector(17 downto 0);    
     signal loader_sram_rw    : std_logic;
@@ -71,9 +71,9 @@ begin
         port map (
             clk        => clk,
             rst        => rst,
-            uart_data  => uart_data,
-            uart_empty => uart_empty,
-            uart_read  => uart_read,
+            rx_buffer  => rx_buffer,
+            rx_empty   => rx_empty,
+            rx_read    => rx_read,
             sram_ready => sram_ready,
             sram_addr  => loader_sram_addr,
             sram_din   => sram_din,
@@ -176,11 +176,11 @@ begin
         procedure send_byte(byte: std_logic_vector(7 downto 0)) is
         begin
             wait until rising_edge(clk);
-            uart_data  <= byte;
-            uart_empty <= '0';
-            wait until uart_read = '1';
+            rx_buffer <= byte;
+            rx_empty  <= '0';
+            wait until rx_read = '1';
             wait until rising_edge(clk);
-            uart_empty <= '1';
+            rx_empty <= '1';
         end procedure;
         
         file coord_file : text open read_mode is "../../resources/data/q0.8-coordinates.csv";

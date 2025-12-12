@@ -5,9 +5,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
---! @brief UART-to-SRAM memory loader.
+--! @brief Byte buffer to SRAM memory loader.
 --! @details
---! Receives 8-bit UART bytes, assembles them into 32-bit words, and writes them
+--! Receives 8-bit buffered bytes, assembles them into 32-bit words, and writes them
 --! sequentially into SRAM.  
 --! When all `DATA_POINTS` words are written, `loaded` is asserted.
 entity memory_loader is
@@ -22,14 +22,14 @@ entity memory_loader is
         --! Active-high asynchronous reset
         rst: in std_logic;
 
-        --! UART received byte        
-        uart_data: in std_logic_vector(7 downto 0);
+        --! Received byte buffer
+        rx_buffer: in std_logic_vector(7 downto 0);
 
-        --! UART FIFO is empty        
-        uart_empty: in std_logic;
+        --! Rx buffer is empty        
+        rx_empty: in std_logic;
 
-        --! UART read strobe (one cycle)        
-        uart_read: out std_logic;
+        --! Rx buffer read strobe (one cycle)        
+        rx_read: out std_logic;
 
         --! SRAM is ready to accept a write command
         sram_ready: in std_logic;
@@ -56,7 +56,7 @@ end entity;
 --! Uses a simple FSM to manage byte packing, SRAM write handshaking, and
 --! address progression.
 --! Implements a five-state FSM:
---! - **IDLE**: wait for first UART byte  
+--! - **IDLE**: wait for first byte in buffer
 --! - **BUILDING_DATA_POINT**: shift in 4 bytes  
 --! - **WRITING_DATA_POINT**: initiate SRAM write  
 --! - **NEXT_DATA_POINT**: increment address/counter  
@@ -91,7 +91,7 @@ begin
 
         case state is
         when IDLE =>
-            if not uart_empty then
+            if not rx_empty then
                 next_state <= BUILDING_DATA_POINT;
             end if;
             
@@ -123,15 +123,15 @@ begin
         if rst then
             data_point <= (others => '0');
             byte_count <= (others => '0');
-            uart_read  <= '0';
+            rx_read  <= '0';
         elsif rising_edge(clk) then
             if state = BUILDING_DATA_POINT then
-                if uart_empty = '0' and uart_read = '0' then
-                    data_point <= data_point(23 downto 0) & uart_data;
+                if rx_empty = '0' and rx_read = '0' then
+                    data_point <= data_point(23 downto 0) & rx_buffer;
                     byte_count <= byte_count + 1;
-                    uart_read  <= '1';
+                    rx_read  <= '1';
                 else
-                    uart_read <= '0';
+                    rx_read <= '0';
                 end if;
             else
                 byte_count <= (others => '0');

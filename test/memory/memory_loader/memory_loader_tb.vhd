@@ -13,9 +13,9 @@ architecture behavioral of memory_loader_tb is
     
     signal clk        : std_logic := '0';
     signal rst        : std_logic;
-    signal uart_data  : std_logic_vector(7 downto 0);
-    signal uart_empty : std_logic;
-    signal uart_read  : std_logic;
+    signal rx_buffer  : std_logic_vector(7 downto 0);
+    signal rx_empty : std_logic;
+    signal rx_read  : std_logic;
     signal sram_ready : std_logic;
     signal sram_addr  : std_logic_vector(17 downto 0);
     signal sram_din   : std_logic_vector(31 downto 0);
@@ -30,9 +30,9 @@ begin
         port map (
             clk        => clk,
             rst        => rst,
-            uart_data  => uart_data,
-            uart_empty => uart_empty,
-            uart_read  => uart_read,
+            rx_buffer  => rx_buffer,
+            rx_empty => rx_empty,
+            rx_read  => rx_read,
             sram_ready => sram_ready,
             sram_addr  => sram_addr,
             sram_din   => sram_din,
@@ -47,15 +47,15 @@ begin
         procedure send_byte(b: std_logic_vector(7 downto 0)) is
         begin
             wait until rising_edge(clk);
-            uart_data  <= b;
-            uart_empty <= '0';
-            wait until uart_read = '1';
+            rx_buffer  <= b;
+            rx_empty <= '0';
+            wait until rx_read = '1';
             wait until rising_edge(clk);
-            uart_empty <= '1';
+            rx_empty <= '1';
         end procedure;      
     begin
         rst <= '1', '0' after CLK_PERIOD / 4;        
-        uart_data  <= (others => '0');
+        rx_buffer  <= (others => '0');
         wait until rst = '0';
         
         wait until rising_edge(clk);
