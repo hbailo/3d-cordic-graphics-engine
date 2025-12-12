@@ -98,6 +98,9 @@ architecture behavioral of integration_tb is
     signal vram_we      : std_logic;
     signal vram_w_addr  : std_logic_vector(VRAM_ADDR_WIDTH - 1 downto 0);
     signal vram_din     : std_logic;
+
+    -- VRAM dump
+    signal vram_dump: std_logic;
 begin
     memory_loader: entity work.memory_loader
         generic map (
@@ -274,7 +277,7 @@ begin
             addr_a    => vram_w_addr,
             addr_b    => vram_r_addr,
             din_a     => (0 => vram_din),
-            dout_a    => open,
+            dout_a(0) => vram_dump,
             dout_b(0) => vram_dout
         );
 
@@ -312,12 +315,12 @@ begin
             rx_empty <= '1';
         end procedure;
         
-        file coord_file : text open read_mode is "../../resources/data/q0.8-coordinates.csv";
-        variable L     : line;
-        variable vx    : integer;
-        variable vy    : integer;
-        variable vz    : integer;
-        variable dummy : string(1 to 1);
+        file coord_file   : text open read_mode is "../../resources/data/q0.8-coordinates.csv";
+        variable L        : line;
+        variable vx       : integer;
+        variable vy       : integer;
+        variable vz       : integer;
+        variable dummy    : string(1 to 1);
         variable data_buf : std_logic_vector(31 downto 0);
     begin
         rst       <= '1', '0' after CLK_PERIOD / 4;
@@ -350,6 +353,31 @@ begin
             send_byte(data_buf(7 downto 0));
         end loop;
         
+        wait;
+    end process;
+    
+    dump_vram: process
+        file dump_file : text open write_mode is "./build/vram_dump.txt";        
+        variable L     : line;
+    begin
+        wait until rst = '0';
+        wait until rising_edge(clk);
+        
+        wait until refresh_tick = '1';
+        
+        while True loop
+            if vram_w_addr /= "0" then
+                write(L, integer(to_integer(unsigned(vram_w_addr))));
+                write(L, string'(": "));
+                wait until rising_edge(clk);                            
+                write(L, vram_dump);
+            end if;
+            
+            writeline(dump_file, L);
+            L := null;
+            
+            wait until rising_edge(vram_we);
+        end loop;
         wait;
     end process;
 end architecture;
