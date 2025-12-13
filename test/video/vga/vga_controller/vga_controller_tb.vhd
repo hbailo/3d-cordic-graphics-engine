@@ -9,6 +9,8 @@ architecture behavioral of vga_controller_tb is
     constant CLK_FREQ   : positive := 50_000_000;
     constant CLK_PERIOD : time := 1 sec / real(CLK_FREQ);
 
+    constant REFRESH_RATE : positive := 50; 
+    
     -- DUT port
     signal clk          : std_logic := '0';
     signal rst          : std_logic;
@@ -19,6 +21,9 @@ architecture behavioral of vga_controller_tb is
     signal pixel_ce     : std_logic;    
 begin
     dut: entity work.vga_controller
+        generic map (
+            REFRESH_RATE => REFRESH_RATE
+        )
         port map (
             clk           => clk,
             rst           => rst,

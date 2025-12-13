@@ -15,6 +15,7 @@ architecture behavioral of main_tb is
     constant DATA_WIDTH         : positive := 9;
     constant ANGULAR_VEL_DEG_S  : positive := 45;    
     constant DEBOUNCE_PERIOD_MS : positive := 20;
+    constant VGA_REFRESH_RATE   : positive := 50;    
     constant BITMAP_WIDTH_PX    : positive := 320;
     constant BITMAP_HEIGHT_PX   : positive := 320;
     constant BITMAP_X_START_PX  : natural  := 160;
@@ -77,6 +78,7 @@ begin
             DATA_WIDTH         => DATA_WIDTH,
             ANGULAR_VEL_DEG_S  => ANGULAR_VEL_DEG_S,
             DEBOUNCE_PERIOD_MS => DEBOUNCE_PERIOD_MS,
+            VGA_REFRESH_RATE   => VGA_REFRESH_RATE,
             BITMAP_WIDTH_PX    => BITMAP_WIDTH_PX,
             BITMAP_HEIGHT_PX   => BITMAP_HEIGHT_PX,
             BITMAP_X_START_PX  => BITMAP_X_START_PX,
@@ -144,6 +146,7 @@ begin
     clk <= not clk after CLK_PERIOD / 2;
     
     load_sram: process
+        -- UART Tx
         procedure send_byte(b : in std_logic_vector(7 downto 0)) is
         begin
             -- Start bit
@@ -161,12 +164,12 @@ begin
             wait for BIT_PERIOD;
         end procedure;
         
-        file coord_file : text open read_mode is "../resources/data/q0.8-coordinates.csv";
-        variable L     : line;
-        variable vx    : integer;
-        variable vy    : integer;
-        variable vz    : integer;
-        variable dummy : string(1 to 1);
+        file coord_file   : text open read_mode is "../resources/data/q0.8-coordinates.csv";
+        variable L        : line;
+        variable vx       : integer;
+        variable vy       : integer;
+        variable vz       : integer;
+        variable dummy    : string(1 to 1);
         variable data_buf : std_logic_vector(31 downto 0);
     begin
         rst <= '1', '0' after CLK_PERIOD / 4;
@@ -174,7 +177,7 @@ begin
         wait until rising_edge(clk);
 
         -- Load csv file
-        readline(coord_file, L); -- Header line
+        readline(coord_file, L);
         
         while not endfile(coord_file) loop
             readline(coord_file, L);

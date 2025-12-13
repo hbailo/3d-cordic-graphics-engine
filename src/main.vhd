@@ -17,7 +17,7 @@ use ieee.std_logic_1164.all;
 --! 7. Dual-port RAM provides VRAM access to both sequencer and VGA controller.
 --! 8. VGA entity reads VRAM and generates RGB signals with h_sync and v_sync.
 entity main is
-    generic (
+    generic (        
         --! System clock frequency in Hz
         CLK_FREQ_HZ: positive;
 
@@ -36,6 +36,9 @@ entity main is
         --! Debounce period for user input switches in milliseconds        
         DEBOUNCE_PERIOD_MS: positive;
 
+        --! Display refresh rate in Hz
+        VGA_REFRESH_RATE: positive;
+        
         --! Bitmap width in pixels                
         BITMAP_WIDTH_PX: positive;
 
@@ -508,6 +511,7 @@ begin
     --! VGA
     vga: entity work.vga
         generic map (
+            REFRESH_RATE      => VGA_REFRESH_RATE,
             BITMAP_WIDTH_PX   => BITMAP_WIDTH_PX,
             BITMAP_HEIGHT_PX  => BITMAP_HEIGHT_PX, 
             BITMAP_X_START_PX => BITMAP_X_START_PX,

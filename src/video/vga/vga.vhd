@@ -7,13 +7,18 @@ use ieee.std_logic_1164.all;
 
 --! @brief Top-level VGA display module
 --! @details
---! Integrates a VGA controller and an image generator to drive a 640×480 @ 60
---! Hz display. The bitmap showed position and size is configurable via generics.
+--! Integrates a VGA controller and an image generator to drive a 640×480 @
+--! 50 or 60 Hz display. The refresh rate, the bitmap showed position and it's
+--! size are configurable via generics.
+--!
 --! Provides sync signals, RGB outputs, pixel VRAM addressing, and refresh tick generation.
 --! 
 --! \pre A clk signal of 50 MHz is assumed.
 entity vga is
     generic (
+        --! Display refresh rate in Hz        
+        REFRESH_RATE: positive;
+        
         --! Bitmap width in pixels        
         BITMAP_WIDTH_PX: positive range 1 to 640;
 
@@ -75,6 +80,9 @@ architecture structural of vga is
 begin
     --! VGA controller
     vga_controller: entity work.vga_controller
+        generic map (
+            REFRESH_RATE => REFRESH_RATE
+        )
         port map (
             clk          => clk,
             rst          => rst,

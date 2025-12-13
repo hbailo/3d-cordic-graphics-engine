@@ -99,6 +99,7 @@ architecture behavioral of integration_tb is
     signal valid_proj : std_logic;
 
     -- VGA
+    constant REFRESH_RATE      : positive := 50;        
     constant BITMAP_WIDTH_PX   : positive := 320;
     constant BITMAP_HEIGHT_PX  : positive := 320;
     constant BITMAP_X_START_PX : natural  := 160;
@@ -425,6 +426,7 @@ begin
     --! VGA
     vga: entity work.vga
         generic map (
+            REFRESH_RATE      => REFRESH_RATE,            
             BITMAP_WIDTH_PX   => BITMAP_WIDTH_PX,
             BITMAP_HEIGHT_PX  => BITMAP_HEIGHT_PX, 
             BITMAP_X_START_PX => BITMAP_X_START_PX,
@@ -500,10 +502,9 @@ begin
     -- UI simulation
     ui: process
     begin
-        x_angle_up_sw   <= '1' after 20 ms, '0' after 55 ms;
-        y_angle_down_sw <= '1' after 40 ms, '0' after 75 ms;
-        z_angle_down_sw <= '1' after 60 ms;        
-                
+        x_angle_up_sw   <= '1' after 10 ms, '0' after 45 ms;
+        y_angle_down_sw <= '1' after 20 ms, '0' after 65 ms;
+        z_angle_down_sw <= '1' after 30 ms; 
         
         wait;
     end process;
