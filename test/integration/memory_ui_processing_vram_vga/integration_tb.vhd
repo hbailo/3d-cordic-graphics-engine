@@ -99,7 +99,7 @@ architecture behavioral of integration_tb is
     signal valid_proj : std_logic;
 
     -- VGA
-    constant REFRESH_RATE      : positive := 50;        
+    constant REFRESH_RATE      : positive := 60;        
     constant BITMAP_WIDTH_PX   : positive := 320;
     constant BITMAP_HEIGHT_PX  : positive := 320;
     constant BITMAP_X_START_PX : natural  := 160;
