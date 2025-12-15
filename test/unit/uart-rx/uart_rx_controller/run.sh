@@ -2,19 +2,20 @@
 set -euo pipefail
 
 # Paths definitions
-readonly SRCDIR="../../../src"
-readonly WORKDIR="../../../build"
+readonly SRCDIR="../../../../src/uart-rx"
+readonly WORKDIR="../../../../build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
 
 # DUT entity
-readonly DUT="uart_rx_interface"
+readonly DUT="uart_rx_controller"
 
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
-ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/${DUT}.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/baud_rate_generator.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/${DUT}.vhd
 
 # Testbench analysis
 ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
@@ -23,7 +24,7 @@ ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
 timestamp=$(date +"%Y-%m-%dT%H-%M-%S")
 wavefile="$WAVEDIR/${DUT}_tb-${timestamp}.ghw"
 
-ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=150ns --wave=$wavefile
+ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=225us --wave=$wavefile
 
 # Simulation waveform display
 savefile="${WAVEDIR}/${DUT}_tb-${timestamp}.gtkw"
@@ -38,7 +39,7 @@ if [ -f "$baseline_savefile" ]; then
         -e "s|^\[savefile\].*|[savefile] \"$(realpath $savefile)\"|" \
         "$savefile"
     
-    twinwave $wavefile $savefile + $baseline_wavefile $baseline_savefile
+    twinwave $wavefile $savefile ++ $baseline_wavefile $baseline_savefile
 else
     gtkwave --saveonexit $wavefile $savefile
 fi

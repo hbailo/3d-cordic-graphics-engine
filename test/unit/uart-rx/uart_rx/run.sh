@@ -2,20 +2,23 @@
 set -euo pipefail
 
 # Paths definitions
-readonly SRCDIR="../../../src"
-readonly WORKDIR="../../../build"
+readonly SRCDIR="../../../../src/uart-rx"
+readonly WORKDIR="../../../../build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
 
 # DUT entity
-readonly DUT="uart_rx_controller"
+readonly DUT="uart_rx"
 
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
-ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/baud_rate_generator.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/${DUT}.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/meta_harden.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/baud_rate_generator.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/uart_rx_controller.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/uart_rx_interface.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/${DUT}.vhd
 
 # Testbench analysis
 ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
