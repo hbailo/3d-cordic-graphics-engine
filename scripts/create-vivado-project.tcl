@@ -1,0 +1,92 @@
+# This script must be run from project root directory
+
+# ---------------------------------------
+# Project settings
+# ---------------------------------------
+set proj_name 3d-cordic-graphics-engine
+set proj_dir  ./build/vivado
+set part xc7z010clg400-1
+
+# ---------------------------------------
+# Create project
+# ---------------------------------------
+create_project -part $part $proj_name $proj_dir
+
+# ---------------------------------------
+# Set board 
+# ---------------------------------------
+set_property board_part digilentinc.com:arty-z7-10:part0:1.1 [current_project]
+
+# ---------------------------------------
+# Set project-level VHDL 2008
+# ---------------------------------------
+set_property target_language VHDL [current_project]
+set_property simulator_language VHDL [current_project]
+
+# ---------------------------------------
+# Add RTL sources
+# ---------------------------------------
+set_property file_type {VHDL 2008} [add_files -fileset sources_1 ./src]
+
+# ---------------------------------------
+# Set top entity
+# ---------------------------------------
+set_property top main [get_filesets sources_1]
+
+# ---------------------------------------
+# Add testbenches
+# ---------------------------------------
+# --- Unit tests ---
+create_fileset -simset sim_unit
+
+set_property file_type {VHDL 2008} [add_files -fileset sim_unit ./test/unit]
+
+# Resources
+set_property file_type {VHDL 2008} [add_files -fileset sim_unit ./test/resources/mocks/sram_mock/sram_mock.vhd]
+
+# --- Integration tests ---
+# 1) Uart + external memory
+create_fileset -simset sim_int_uart_mem
+
+set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem ./test/integration/uart-memory/integration_tb.vhd]
+
+set_property top integration_tb [get_filesets sim_int_uart_mem]
+
+# Resources
+set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem ./test/resources/mocks/sram_mock/sram_mock.vhd]
+
+# 2) External memory to vga
+create_fileset -simset sim_int_mem_ui_proc_video
+
+set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_ui_proc_video ./test/integration/memory-ui-processing-vram-vga/integration_tb.vhd]
+
+set_property top integration_tb [get_filesets sim_int_mem_ui_proc_video]
+
+# Resources
+set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_ui_proc_video ./test/resources/mocks/sram_mock/sram_mock.vhd]
+
+# --- System test ---
+create_fileset -simset sim_main
+set_property file_type {VHDL 2008} [add_files -fileset sim_main ./test/main/main_tb.vhd]
+set_property top main_tb [get_filesets sim_main]
+current_fileset -simset [get_filesets sim_main]
+
+# Resources
+set_property file_type {VHDL 2008} [add_files -fileset sim_main ./test/resources/mocks/sram_mock/sram_mock.vhd]
+
+# Delete automatically generated sim_1
+delete_fileset [get_filesets sim_1]
+
+# ---------------------------------------
+# Add constraints
+# ---------------------------------------
+add_files -fileset constrs_1 ./constraints/arty-z7-10.xdc
+
+# ---------------------------------------
+# Compile order
+# ---------------------------------------
+update_compile_order -fileset sources_1
+update_compile_order -fileset sim_unit
+update_compile_order -fileset sim_int_uart_mem
+update_compile_order -fileset sim_int_mem_ui_proc_video
+update_compile_order -fileset sim_main
