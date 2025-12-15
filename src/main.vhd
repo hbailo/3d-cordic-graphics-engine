@@ -19,37 +19,37 @@ use ieee.std_logic_1164.all;
 entity main is
     generic (        
         --! System clock frequency in Hz
-        CLK_FREQ_HZ: positive;
+        CLK_FREQ_HZ: positive := 50_000_000;
 
         --! UART baud rate in bits per second
-        BAUD_RATE: positive;
+        BAUD_RATE: positive := 115_200;
 
         --! Total number of 32-bit points to load to memory
-        DATA_POINTS: positive;
+        DATA_POINTS: positive := 11946;
         
         --! Coordinates and angles bit width        
-        DATA_WIDTH: positive;
+        DATA_WIDTH: positive := 9;
 
         --! Maximum angular velocity for stepper-controlled rotations [deg/s]
-        ANGULAR_VEL_DEG_S: positive;
+        ANGULAR_VEL_DEG_S: positive := 45;
 
         --! Debounce period for user input switches in milliseconds        
-        DEBOUNCE_PERIOD_MS: positive;
+        DEBOUNCE_PERIOD_MS: positive := 20;
 
         --! Display refresh rate in Hz
-        VGA_REFRESH_RATE: positive;
+        VGA_REFRESH_RATE: positive := 60;
         
         --! Bitmap width in pixels                
-        BITMAP_WIDTH_PX: positive;
+        BITMAP_WIDTH_PX: positive := 320;
 
         --! Bitmap height in pixels        
-        BITMAP_HEIGHT_PX: positive;
+        BITMAP_HEIGHT_PX: positive := 320;
 
         --! Bitmap starting X coordinate        
-        BITMAP_X_START_PX: natural range 0 to 640 - BITMAP_WIDTH_PX;
+        BITMAP_X_START_PX: natural range 0 to 640 - BITMAP_WIDTH_PX := 160;
 
         --! Bitmap starting Y coordinate        
-        BITMAP_Y_START_PX: natural range 0 to 480 - BITMAP_HEIGHT_PX        
+        BITMAP_Y_START_PX: natural range 0 to 480 - BITMAP_HEIGHT_PX := 80 
     );
     
     port (
