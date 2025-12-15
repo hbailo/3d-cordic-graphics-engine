@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Paths definitions
-readonly SRCDIR="../../../../../src"
-readonly WORKDIR="../../../../../build"
+readonly SRCDIR="../../../../../../src/processing/rotator/cordic"
+readonly WORKDIR="../../../../../../build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
@@ -14,11 +14,11 @@ readonly DUT="cordic"
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
-ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/cordic/cordic_pipeline_synchronizer.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/cordic/cordic_preprocessor.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/cordic/cordic_stage.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/cordic/cordic_postprocessor.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/cordic/${DUT}.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/cordic_pipeline_synchronizer.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/cordic_preprocessor.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/cordic_stage.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/cordic_postprocessor.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/${DUT}.vhd
 
 # Testbench analysis
 ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
