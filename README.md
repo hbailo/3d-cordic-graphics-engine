@@ -4,6 +4,7 @@ A 3D rotation graphics engine based on a CORDIC core, with uart data loading and
 ## RTL Schematic
 
 ## Project structure
+```
 src/                 # RTL design sources (synthesizable)
 test/                # Testbenches and simulation resources
   ├── unit/          # Unit tests (one TB per entity)
@@ -12,6 +13,7 @@ test/                # Testbenches and simulation resources
   └── resources/     # Mocks, data files, helpers (simulation only)
 constraints/         # XDC constraints
 scripts/             # Vivado TCL scripts
+```
 
 ## Building
 Build the vivado project targeting the Arty Z7-10 board.
@@ -21,7 +23,7 @@ Prerequisites
 - Arty Z7-10 board files installed in vivado
 - GNU Make (optional)
 
-* With make
+### With make
 Edit Makefile VIVADO variable to point to vivado binary
 
 ```makefile
@@ -34,7 +36,7 @@ Run
    make vivado
 ``` 
 
-* Without make
+### Without make
 
 Run
 
