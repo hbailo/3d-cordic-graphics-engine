@@ -113,7 +113,7 @@ begin
     end process;
 
     log_rot: process
-        file rot_file : text open write_mode is "build/rot.txt";        
+        file rot_file : text open write_mode is "./build/rot.txt";        
         variable L    : line;
     begin
         wait until rst = '0';
