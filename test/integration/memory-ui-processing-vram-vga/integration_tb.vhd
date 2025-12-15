@@ -1,162 +1,23 @@
---! @file
---! @author Hernán L. Bailo - <hbailo1995@gmail.com>
---! @date 2025
 library ieee;
 use ieee.math_real.all;
+use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_textio.all;
+use std.textio.all;
 
---! @brief Top-level 3D graphics engine system integrating UART, SRAM, 3D rotator, projector, bitmap, VRAM, and VGA
---! @details
---! Implements the full 3D visualization pipeline:
---! 1. UART receives bytes representing 3D point coordinates.
---! 2. Memory loader and reader manage SRAM banks A/B.
---! 3. User interface allows interactive angular adjustments with debounced switches and angle steppers.
---! 4. 3D rotator applies rotation to points based on user-controlled angles.
---! 5. Orthographic projector maps 3D points to 2D coordinates.
---! 6. Bitmap sequencer writes projected points into VRAM.
---! 7. Dual-port RAM provides VRAM access to both sequencer and VGA controller.
---! 8. VGA entity reads VRAM and generates RGB signals with h_sync and v_sync.
-entity main is
-    generic (        
-        --! System clock frequency in Hz
-        CLK_FREQ_HZ: positive := 50_000_000;
-
-        --! UART baud rate in bits per second
-        BAUD_RATE: positive := 115_200;
-
-        --! Total number of 32-bit points to load to memory
-        DATA_POINTS: positive := 11946;
-        
-        --! Coordinates and angles bit width        
-        DATA_WIDTH: positive := 9;
-
-        --! Maximum angular velocity for stepper-controlled rotations [deg/s]
-        ANGULAR_VEL_DEG_S: positive := 45;
-
-        --! Debounce period for user input switches in milliseconds        
-        DEBOUNCE_PERIOD_MS: positive := 20;
-
-        --! Display refresh rate in Hz
-        VGA_REFRESH_RATE: positive := 60;
-        
-        --! Bitmap width in pixels                
-        BITMAP_WIDTH_PX: positive := 320;
-
-        --! Bitmap height in pixels        
-        BITMAP_HEIGHT_PX: positive := 320;
-
-        --! Bitmap starting X coordinate        
-        BITMAP_X_START_PX: natural range 0 to 640 - BITMAP_WIDTH_PX := 160;
-
-        --! Bitmap starting Y coordinate        
-        BITMAP_Y_START_PX: natural range 0 to 480 - BITMAP_HEIGHT_PX := 80 
-    );
-    
-    port (
-        --! System clock          
-        clk: in std_logic;
-
-        --! Active-high asynchronous reset           
-        rst: in std_logic;
-
-        --! UART serial data input line        
-        rx: in std_logic;
-
-        --! X angle up switch
-        x_angle_up_sw: in std_logic;
-        
-        --! X angle down switch        
-        x_angle_down_sw: in std_logic;
-        
-        --! Y angle up switch
-        y_angle_up_sw: in std_logic;
-        
-        --! Y angle down switch        
-        y_angle_down_sw: in std_logic;
-        
-        --! Z angle up switch        
-        z_angle_up_sw: in std_logic;
-        
-        --! Z angle down switch                
-        z_angle_down_sw: in std_logic;
-        
-        --! Address bus for SRAM sram A        
-        addr_a: out std_logic_vector(17 downto 0);
-
-        --! 16-bit bidirectional data bus for sram A        
-        dio_a: inout std_logic_vector(15 downto 0);
-
-        --! Write enable for sram A (active low)        
-        we_n_a: out std_logic;
-        
-        --! Output enable for sram A (active low)        
-        oe_n_a: out std_logic;
-
-        --! Chip enable for sram A (active low)        
-        ce_n_a: out std_logic;
-
-        --! Upper byte enable for sram A (active low)        
-        ub_n_a: out std_logic;
-        
-        --! Lower byte enable for sram A (active low)        
-        lb_n_a: out std_logic;
-
-        --! Address bus for SRAM sram B        
-        addr_b: out std_logic_vector(17 downto 0);
-
-        --! 16-bit bidirectional data bus for sram B        
-        dio_b: inout std_logic_vector(15 downto 0);
-
-        --! Write enable for sram B (active low)        
-        we_n_b: out std_logic;
-
-        --! Output enable for sram B (active low)        
-        oe_n_b: out std_logic;
-
-        --! Chip enable for sram B (active low)        
-        ce_n_b: out std_logic;
-
-        --! Upper byte enable for sram B (active low)        
-        ub_n_b: out std_logic;
-
-        --! Lower byte enable for sram B (active low)        
-        lb_n_b: out std_logic;
-
-        --! VGA horizontal sync output                
-        h_sync: out std_logic;
-        
-        --! VGA vertical sync output                        
-        v_sync: out std_logic;
-
-        --! VGA red channel output (monochrome)        
-        red: out std_logic;
-        
-        --! VGA green channel output (monochrome)                
-        green: out std_logic;
-        
-        --! VGA blue channel output (monochrome)                        
-        blue: out std_logic        
-    );
+entity integration_tb is
 end entity;
 
---! @brief Structural architecture of main
---! @details
---! Instantiates all submodules:
---! - uart_rx for receiving point data
---! - memory_loader and memory_reader for SRAM access
---! - sram_controller for sram multiplexing
---! - switch_debouncer and angle_stepper for user input
---! - xyz_rotator and orthographic_projector for 3D processing
---! - bitmap_sequencer for VRAM writes
---! - dual_port_ram for VRAM
---! - vga for display output
-architecture structural of main is
-    -- UART
-    signal rx_read   : std_logic;
-    signal rx_empty  : std_logic;
-    signal rx_buffer : std_logic_vector(7 downto 0);
+architecture behavioral of integration_tb is
+    constant CLK_FREQ_HZ : positive := 50_000_000;
+    constant CLK_PERIOD  : time := 1 sec / real(CLK_FREQ_HZ);
+
+    signal clk: std_logic := '0';
+    signal rst: std_logic;
+
+    -- SRAM reader
+    constant DATA_WIDTH : positive := 9;
     
-    -- SRAM reader    
     signal x                 : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal y                 : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal z                 : std_logic_vector(DATA_WIDTH - 1 downto 0);
@@ -164,13 +25,18 @@ architecture structural of main is
     signal reader_sram_rw    : std_logic;
     signal reader_sram_start : std_logic;        
     signal valid_sram_read   : std_logic;
-
+    
     -- SRAM loader
+    constant DATA_POINTS : positive := 11946;
+
+    signal rx_buffer         : std_logic_vector(7 downto 0) := (others => '0');
+    signal rx_empty          : std_logic := '0';
+    signal rx_read           : std_logic;
     signal sram_loaded       : std_logic;
     signal loader_sram_addr  : std_logic_vector(17 downto 0);    
     signal loader_sram_rw    : std_logic;
     signal loader_sram_start : std_logic;
-
+    
     -- SRAM controller
     signal sram_start : std_logic;
     signal sram_rw    : std_logic;
@@ -179,19 +45,48 @@ architecture structural of main is
     signal sram_dout  : std_logic_vector(31 downto 0);
     signal sram_ready : std_logic;
     
-    -- UI
-    signal x_angle      : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal x_angle_up   : std_logic;
-    signal x_angle_down : std_logic;
-
-    signal y_angle      : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal y_angle_up   : std_logic;
-    signal y_angle_down : std_logic;
+    -- SRAM A    
+    signal addr_a : std_logic_vector(17 downto 0);
+    signal dio_a  : std_logic_vector(15 downto 0);
+    signal we_n_a : std_logic;
+    signal oe_n_a : std_logic;
+    signal ce_n_a : std_logic;
+    signal ub_n_a : std_logic;
+    signal lb_n_a : std_logic;
     
-    signal z_angle      : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal z_angle_up   : std_logic;
-    signal z_angle_down : std_logic;
+    -- SRAM B    
+    signal addr_b : std_logic_vector(17 downto 0);
+    signal dio_b  : std_logic_vector(15 downto 0);
+    signal we_n_b : std_logic;
+    signal oe_n_b : std_logic;
+    signal ce_n_b : std_logic;
+    signal ub_n_b : std_logic;
+    signal lb_n_b : std_logic;
 
+    constant SRAM_MOCK_ADDR_WIDTH: positive := integer(ceil(log2(real(DATA_POINTS))));
+
+    -- UI
+    constant DEBOUNCE_PERIOD_MS : positive := 20;
+    constant ANGULAR_VEL_DEG_S  : positive := 45;
+    
+    signal x_angle         : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal x_angle_up_sw   : std_logic := '0';
+    signal x_angle_up      : std_logic;
+    signal x_angle_down_sw : std_logic := '0';    
+    signal x_angle_down    : std_logic;
+
+    signal y_angle         : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal y_angle_up_sw   : std_logic := '0';
+    signal y_angle_up      : std_logic;
+    signal y_angle_down_sw : std_logic := '0';    
+    signal y_angle_down    : std_logic;
+    
+    signal z_angle         : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal z_angle_up_sw   : std_logic := '0';
+    signal z_angle_up      : std_logic;
+    signal z_angle_down_sw : std_logic := '0';
+    signal z_angle_down    : std_logic;
+    
     -- Rotator
     signal x_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal y_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);    
@@ -203,34 +98,28 @@ architecture structural of main is
     signal z_proj     : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal valid_proj : std_logic;
 
-    -- VRAM
-    constant VRAM_ADDR_WIDTH : integer := integer(ceil(log2(real(BITMAP_WIDTH_PX * BITMAP_HEIGHT_PX))));
+    -- VGA
+    constant REFRESH_RATE      : positive := 60;        
+    constant BITMAP_WIDTH_PX   : positive := 320;
+    constant BITMAP_HEIGHT_PX  : positive := 320;
+    constant BITMAP_X_START_PX : natural  := 160;
+    constant BITMAP_Y_START_PX : natural  := 80;
+    constant VRAM_ADDR_WIDTH   : integer := integer(ceil(log2(real(BITMAP_WIDTH_PX * BITMAP_HEIGHT_PX))));
     
+    signal vram_dout    : std_logic;
+    signal vram_r_addr  : std_logic_vector(VRAM_ADDR_WIDTH - 1 downto 0);
+    signal refresh_tick : std_logic;
+    signal h_sync       : std_logic;
+    signal v_sync       : std_logic;
+    signal red          : std_logic_vector(0 downto 0);
+    signal green        : std_logic_vector(0 downto 0);
+    signal blue         : std_logic_vector(0 downto 0);
+    
+    -- VRAM    
     signal vram_we      : std_logic;
     signal vram_w_addr  : std_logic_vector(VRAM_ADDR_WIDTH - 1 downto 0);
     signal vram_din     : std_logic;
-    signal vram_r_addr  : std_logic_vector(VRAM_ADDR_WIDTH - 1 downto 0);
-    signal vram_dout    : std_logic;
-
-    -- VGA
-    signal refresh_tick : std_logic;
 begin
-    --! Uart rx interface
-    uart_rx: entity work.uart_rx
-        generic map (
-            CLK_FREQ  => CLK_FREQ_HZ,
-            BAUD_RATE => BAUD_RATE
-        )
-        port map (
-            clk       => clk,
-            rst       => rst,
-            rx        => rx,
-            rx_read   => rx_read,
-            rx_buffer => rx_buffer,
-            rx_empty  => rx_empty
-        );
-
-    --! Memory loader
     memory_loader: entity work.memory_loader
         generic map (
             DATA_POINTS => DATA_POINTS
@@ -249,7 +138,6 @@ begin
             loaded     => sram_loaded
         );
 
-    --! Memory reader
     memory_reader: entity work.memory_reader
         generic map (
             DATA_POINTS => DATA_POINTS,
@@ -284,7 +172,6 @@ begin
         end if;
     end process;
     
-    --! Coordinates memory
     sram_controller: entity work.sram_controller
         port map (
             clk    => clk,
@@ -310,7 +197,35 @@ begin
             ub_n_b => ub_n_b,
             lb_n_b => lb_n_b
         );
-   
+
+    sram_a: entity work.sram_mock
+        generic map (
+            ADDR_WIDTH => SRAM_MOCK_ADDR_WIDTH
+        )
+        port map (
+            addr => addr_a,
+            dio  => dio_a,
+            we_n => we_n_a,
+            oe_n => oe_n_a,
+            ce_n => ce_n_a,
+            ub_n => ub_n_a,
+            lb_n => lb_n_a
+        );
+
+    sram_b: entity work.sram_mock
+        generic map (
+            ADDR_WIDTH => SRAM_MOCK_ADDR_WIDTH
+        )        
+        port map (
+            addr => addr_b,
+            dio  => dio_b,
+            we_n => we_n_b,
+            oe_n => oe_n_b,
+            ce_n => ce_n_b,
+            ub_n => ub_n_b,
+            lb_n => lb_n_b
+        );
+    
     --! Rotation angle user interface
     --! X angle up button debouncer       
     x_angle_up_sw_db: entity work.switch_debouncer
@@ -433,8 +348,8 @@ begin
             up    => z_angle_up,
             down  => z_angle_down,
             angle => z_angle
-        ); 
-
+        );
+    
     --! 3D rotator
     rotator: entity work.xyz_rotator
         generic map (
@@ -491,7 +406,7 @@ begin
             vram_addr => vram_w_addr,
             vram_din  => vram_din
         );
-
+    
     --! VRAM
     vram: entity work.dual_port_ram
         generic map (
@@ -511,7 +426,7 @@ begin
     --! VGA
     vga: entity work.vga
         generic map (
-            REFRESH_RATE      => VGA_REFRESH_RATE,
+            REFRESH_RATE      => REFRESH_RATE,            
             BITMAP_WIDTH_PX   => BITMAP_WIDTH_PX,
             BITMAP_HEIGHT_PX  => BITMAP_HEIGHT_PX, 
             BITMAP_X_START_PX => BITMAP_X_START_PX,
@@ -525,8 +440,108 @@ begin
             refresh_tick => refresh_tick,
             h_sync       => h_sync,
             v_sync       => v_sync,
-            red          => red,
-            green        => green,
-            blue         => blue
-        );    
+            red          => red(0),
+            green        => green(0),
+            blue         => blue(0)
+        );
+    
+    clk <= not clk after CLK_PERIOD / 2;
+    
+    load_sram: process
+        procedure send_byte(byte: std_logic_vector(7 downto 0)) is
+        begin
+            wait until rising_edge(clk);
+            rx_buffer <= byte;
+            rx_empty  <= '0';
+            wait until rx_read = '1';
+            wait until rising_edge(clk);
+            rx_empty <= '1';
+        end procedure;
+        
+        file coord_file   : text open read_mode is "../../resources/data/q0.8-coordinates.csv";
+        variable L        : line;
+        variable vx       : integer;
+        variable vy       : integer;
+        variable vz       : integer;
+        variable dummy    : string(1 to 1);
+        variable data_buf : std_logic_vector(31 downto 0);
+    begin
+        rst       <= '1', '0' after CLK_PERIOD / 4;
+        rx_buffer <= (others => '0');
+        rx_empty  <= '1';
+        wait until rst = '1';
+        wait until rising_edge(clk);
+
+        -- Load csv file
+        readline(coord_file, L); -- Header line
+        
+        while not endfile(coord_file) loop
+            readline(coord_file, L);
+
+            -- Read coordinates x,y,z (comma separated)
+            read(L, vx);
+            read(L, dummy);  -- comma
+            read(L, vy);
+            read(L, dummy);  -- comma
+            read(L, vz);
+ 
+            data_buf := std_logic_vector(to_signed(vx, DATA_WIDTH)) &
+                        std_logic_vector(to_signed(vy, DATA_WIDTH)) &
+                        std_logic_vector(to_signed(vz, DATA_WIDTH)) &
+                        "00000";
+                        
+            send_byte(data_buf(31 downto 24));            
+            send_byte(data_buf(23 downto 16));
+            send_byte(data_buf(15 downto 8));
+            send_byte(data_buf(7 downto 0));
+        end loop;
+        
+        wait;
+    end process;
+
+    -- UI simulation
+    ui: process
+    begin
+        x_angle_up_sw   <= '1' after 10 ms, '0' after 45 ms;
+        y_angle_down_sw <= '1' after 20 ms, '0' after 65 ms;
+        z_angle_down_sw <= '1' after 30 ms; 
+        
+        wait;
+    end process;
+    
+    -- VGA dump
+    -- RATIONALE: https://ericeastwood.com/blog/vga-simulator-getting-started/
+    vga_dump: process(clk)
+        file dump_file   : text open write_mode is "./build/vga_dump.txt";        
+        variable line_el : line;
+    begin
+        if rising_edge(clk) then
+            -- Write the time
+            write(line_el, now); 
+            write(line_el, string'(":"));
+
+            -- Write the hsync
+            write(line_el, string'(" "));            
+            write(line_el, h_sync);
+
+            -- Write the vsync
+            write(line_el, string'(" "));            
+            write(line_el, v_sync);
+
+            -- Write the red
+            write(line_el, string'(" "));
+            write(line_el, std_logic_vector(resize(signed(red), 3)));
+
+            -- Write the green
+            write(line_el, string'(" "));
+            write(line_el, std_logic_vector(resize(signed(green), 3)));                        
+
+            -- Write the blue
+            write(line_el, string'(" "));
+            write(line_el, std_logic_vector(resize(signed(blue), 2)));                        
+
+            -- write the contents into the file
+            writeline(dump_file, line_el);
+        end if;
+    end process;
 end architecture;
