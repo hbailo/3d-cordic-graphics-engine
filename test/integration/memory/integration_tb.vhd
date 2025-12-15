@@ -223,7 +223,7 @@ begin
     end process;
 
     dump_sram: process
-        file dump_file : text open write_mode is "build/sram_dump.txt";        
+        file dump_file : text open write_mode is "./build/sram_dump.txt";        
         variable L     : line;        
     begin
         wait until sram_loaded = '1';

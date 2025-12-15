@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Paths definitions
-readonly SRCDIR="../../../src"
-readonly TESTDIR="../.."
+readonly SRCDIR="../../../src/memory"
+readonly RESDIR="../../resources"
 readonly WORKDIR="../../../build"
 readonly WAVEDIR="./build"
 
@@ -15,10 +15,10 @@ readonly DUT="integration"
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
-ghdl -a $GHDL_FLAGS $SRCDIR/memory/memory_loader.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/memory/memory_reader.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/memory/sram_controller.vhd
-ghdl -a $GHDL_FLAGS $TESTDIR/resources/mocks/sram_mock/sram_mock.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/memory_loader.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/memory_reader.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/sram_controller.vhd
+ghdl -a $GHDL_FLAGS $RESDIR/mocks/sram_mock/sram_mock.vhd
 
 # Testbench analysis
 ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
