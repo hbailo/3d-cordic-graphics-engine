@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Paths definitions
 readonly SRCDIR="../../../src"
-readonly TESTDIR="../.."
+readonly RESDIR="../../resources"
 readonly WORKDIR="../../../build"
 readonly WAVEDIR="./build"
 
@@ -26,6 +26,8 @@ ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/cordic/cordic_postprocessor.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/cordic/cordic.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/axis_rotator.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/xyz_rotator.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/ui/angle_stepper.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/ui/switch_debouncer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_clearer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_drawer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_sequencer.vhd
@@ -33,7 +35,7 @@ ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/dual_port_ram.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/image_generator.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/vga_controller.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/vga.vhd
-ghdl -a $GHDL_FLAGS $TESTDIR/resources/mocks/sram_mock/sram_mock.vhd
+ghdl -a $GHDL_FLAGS $RESDIR/mocks/sram_mock/sram_mock.vhd
 
 # Testbench analysis
 ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
