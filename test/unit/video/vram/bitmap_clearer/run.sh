@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Paths definitions
-readonly SRCDIR="../../../../src"
-readonly WORKDIR="../../../../build"
+readonly SRCDIR="../../../../../src/video/vram"
+readonly WORKDIR="../../../../../build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
@@ -14,7 +14,7 @@ readonly DUT="bitmap_clearer"
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
-ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/${DUT}.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/${DUT}.vhd
 
 # Testbench analysis
 ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
