@@ -1,0 +1,36 @@
+{
+    "options": {
+        "ghdl_analysis": [
+            "--std=08",
+            "-Wall"
+        ]
+    },
+    "files": [
+        {"file": "src/main.vhd"},
+        {"file": "src/memory/memory_loader.vhd"},
+        {"file": "src/memory/memory_reader.vhd"},
+        {"file": "src/memory/sram_controller.vhd"},        
+        {"file": "src/processing/projector/orthographic_projector.vhd"},
+        {"file": "src/processing/rotator/cordic/cordic_pipeline_synchronizer.vhd"},        
+        {"file": "src/processing/rotator/cordic/cordic_postprocessor.vhd"},
+        {"file": "src/processing/rotator/cordic/cordic_preprocessor.vhd"},
+        {"file": "src/processing/rotator/cordic/cordic_stage.vhd"},
+        {"file": "src/processing/rotator/cordic/cordic.vhd"},        
+        {"file": "src/processing/rotator/axis_rotator.vhd"},
+        {"file": "src/processing/rotator/xyz_rotator.vhd"},
+        {"file": "src/uart-rx/baud_rate_generator.vhd"},
+        {"file": "src/uart-rx/meta_harden.vhd"},
+        {"file": "src/uart-rx/uart_rx_controller.vhd"},
+        {"file": "src/uart-rx/uart_rx_interface.vhd"},
+        {"file": "src/uart-rx/uart_rx.vhd"},
+        {"file": "src/ui/angle_stepper.vhd"},
+        {"file": "src/ui/switch_debouncer.vhd"},
+        {"file": "src/video/vga/image_generator.vhd"},        
+        {"file": "src/video/vga/vga_controller.vhd"},
+        {"file": "src/video/vga/vga.vhd"},
+        {"file": "src/video/vram/bitmap_clearer.vhd"},
+        {"file": "src/video/vram/bitmap_drawer.vhd"},
+        {"file": "src/video/vram/bitmap_sequencer.vhd"},
+        {"file": "src/video/vram/dual_port_ram.vhd"}        
+    ]
+}
