@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Paths definitions
-readonly SRCDIR="../../../../src"
-readonly WORKDIR="../../../../build"
+readonly SRCDIR="../../../../../src/video/vga"
+readonly WORKDIR="../../../../../build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
@@ -14,9 +14,9 @@ readonly DUT="vga"
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
-ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/image_generator.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/vga_controller.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/${DUT}.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/image_generator.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/vga_controller.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/${DUT}.vhd
 
 # Testbench analysis
 ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
