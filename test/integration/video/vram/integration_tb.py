@@ -39,7 +39,7 @@ ax1.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 ax1.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
 # Load raw CSV
-img2 = np.loadtxt("vram_dump.txt", dtype=np.uint64)
+img2 = np.loadtxt("./build/vram_dump.txt", dtype=np.uint64)
 
 img2[img2 == 1] = 255
 

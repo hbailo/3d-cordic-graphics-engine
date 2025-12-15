@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Paths definitions
-readonly SRCDIR="../../../../src"
+readonly SRCDIR="../../../../src/video/vram"
 readonly WORKDIR="../../../../build"
 readonly WAVEDIR="./build"
 
@@ -14,10 +14,10 @@ readonly DUT="integration"
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
-ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_clearer.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_drawer.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_sequencer.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/dual_port_ram.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/bitmap_clearer.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/bitmap_drawer.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/bitmap_sequencer.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/dual_port_ram.vhd
 
 # Testbench analysis
 ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd

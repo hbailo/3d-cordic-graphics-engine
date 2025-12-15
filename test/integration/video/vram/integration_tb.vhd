@@ -127,7 +127,7 @@ begin
     end process;
 
     dump_vram: process
-        file dump_file : text open write_mode is "vram_dump.txt";        
+        file dump_file : text open write_mode is "./build/vram_dump.txt";        
         variable L    : line;
     begin
         wait until rst = '0';
