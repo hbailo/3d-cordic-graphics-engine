@@ -61,9 +61,9 @@ architecture behavioral of main_tb is
     -- VGA
     signal h_sync : std_logic;
     signal v_sync : std_logic;
-    signal red    : std_logic;
-    signal green  : std_logic;
-    signal blue : std_logic;
+    signal red    : std_logic_vector(0 downto 0);
+    signal green  : std_logic_vector(0 downto 0);
+    signal blue   : std_logic_vector(0 downto 0);
     
     -- Testbench constants    
     constant SRAM_MOCK_ADDR_WIDTH : positive := integer(ceil(log2(real(DATA_POINTS))));
@@ -110,9 +110,9 @@ begin
             lb_n_b          => lb_n_b,
             h_sync          => h_sync,
             v_sync          => v_sync,
-            red             => red,
-            green           => green,
-            blue            => blue            
+            red             => red(0),
+            green           => green(0),
+            blue            => blue(0)            
         );
 
     sram_a: entity work.sram_mock
@@ -145,8 +145,7 @@ begin
 
     clk <= not clk after CLK_PERIOD / 2;
     
-    load_sram: process
-        -- UART Tx
+    uart_tx: process
         procedure send_byte(b : in std_logic_vector(7 downto 0)) is
         begin
             -- Start bit
@@ -202,4 +201,40 @@ begin
         
         wait;
     end process;
+
+    -- VGA dump
+    -- RATIONALE: https://ericeastwood.com/blog/vga-simulator-getting-started/
+    vga_dump: process(clk)
+        file dump_file   : text open write_mode is "./build/vga_dump.txt";        
+        variable line_el : line;
+    begin
+        if rising_edge(clk) then
+            -- Write the time
+            write(line_el, now); 
+            write(line_el, string'(":"));
+
+            -- Write the hsync
+            write(line_el, string'(" "));            
+            write(line_el, h_sync);
+
+            -- Write the vsync
+            write(line_el, string'(" "));            
+            write(line_el, v_sync);
+
+            -- Write the red
+            write(line_el, string'(" "));
+            write(line_el, std_logic_vector(resize(signed(red), 3)));
+
+            -- Write the green
+            write(line_el, string'(" "));
+            write(line_el, std_logic_vector(resize(signed(green), 3)));                        
+
+            -- Write the blue
+            write(line_el, string'(" "));
+            write(line_el, std_logic_vector(resize(signed(blue), 2)));                        
+
+            -- write the contents into the file
+            writeline(dump_file, line_el);
+        end if;
+    end process;    
 end architecture;

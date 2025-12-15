@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Paths definitions
 readonly SRCDIR="../../src"
-readonly TESTDIR=".."
+readonly RESDIR="../resources"
 readonly WORKDIR="../../build"
 readonly WAVEDIR="./build"
 
@@ -37,7 +37,7 @@ ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_clearer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_drawer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_sequencer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/dual_port_ram.vhd
-ghdl -a $GHDL_FLAGS $TESTDIR/resources/mocks/sram_mock/sram_mock.vhd
+ghdl -a $GHDL_FLAGS $RESDIR/mocks/sram_mock/sram_mock.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/${DUT}.vhd
 
 # Testbench analysis
@@ -47,7 +47,7 @@ ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
 timestamp=$(date +"%Y-%m-%dT%H-%M-%S")
 wavefile="$WAVEDIR/${DUT}_tb-${timestamp}.ghw"
 
-ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=40ms --wave=$wavefile
+ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=40ms
 
 # Simulation waveform display
 savefile="${WAVEDIR}/${DUT}_tb-${timestamp}.gtkw"
