@@ -20,11 +20,11 @@ Build the vivado project targeting the Arty Z7-10 board.
 
 Prerequisites
 - Vivado 2023.2
-- Arty Z7-10 board files installed in vivado
+- Arty Z7-10 board files installed in Vivado
 - GNU Make (optional)
 
 ### With make
-Edit Makefile VIVADO variable to point to vivado binary
+Edit Makefile VIVADO variable to point to Vivado binary
 
 ```makefile
     VIVADO := /path/to/vivado/2023.2/bin/vivado
