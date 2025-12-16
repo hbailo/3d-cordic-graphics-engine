@@ -4,8 +4,13 @@
 # Project settings
 # ---------------------------------------
 set proj_name 3d-cordic-graphics-engine
-set proj_dir  ./build/vivado
+set proj_dir  ./build/vivado2
 set part xc7z010clg400-1
+
+# ---------------------------------------
+# Args processing
+# ---------------------------------------
+set BASE_PATH [file normalize [lindex $argv 0]]
 
 # ---------------------------------------
 # Create project
@@ -21,7 +26,6 @@ set_property board_part digilentinc.com:arty-z7-10:part0:1.1 [current_project]
 # Set project-level VHDL 2008
 # ---------------------------------------
 set_property target_language VHDL [current_project]
-set_property simulator_language VHDL [current_project]
 
 # ---------------------------------------
 # Add RTL sources
@@ -51,6 +55,7 @@ create_fileset -simset sim_int_uart_mem
 set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem ./test/integration/uart-memory/integration_tb.vhd]
 
 set_property top integration_tb [get_filesets sim_int_uart_mem]
+set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_uart_mem]
 
 # Resources
 set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem ./test/resources/mocks/sram_mock/sram_mock.vhd]
@@ -61,6 +66,7 @@ create_fileset -simset sim_int_mem_ui_proc_video
 set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_ui_proc_video ./test/integration/memory-ui-processing-vram-vga/integration_tb.vhd]
 
 set_property top integration_tb [get_filesets sim_int_mem_ui_proc_video]
+set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_mem_ui_proc_video]
 
 # Resources
 set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_ui_proc_video ./test/resources/mocks/sram_mock/sram_mock.vhd]
@@ -69,6 +75,7 @@ set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_ui_proc_video
 create_fileset -simset sim_main
 set_property file_type {VHDL 2008} [add_files -fileset sim_main ./test/main/main_tb.vhd]
 set_property top main_tb [get_filesets sim_main]
+#set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_main]
 current_fileset -simset [get_filesets sim_main]
 
 # Resources
