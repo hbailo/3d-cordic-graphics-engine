@@ -33,7 +33,8 @@ entity bitmap_sequencer is
 
         --! Active-high asynchronous reset
         rst: in std_logic;
- 
+
+        --! Draw pixel
         draw: in std_logic;
         
         --! x bitmap coordinate
@@ -41,7 +42,8 @@ entity bitmap_sequencer is
 
         --! y bitmap coordinate
         y: in std_logic_vector(DATA_WIDTH - 1 downto 0);
-        
+
+        --! Clear VRAM
         clear: in std_logic;
 
         --! Write enable for VRAM
