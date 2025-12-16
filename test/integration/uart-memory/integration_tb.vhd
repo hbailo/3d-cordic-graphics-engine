@@ -5,6 +5,9 @@ use ieee.math_real.all;
 use std.textio.all;
 
 entity integration_tb is
+    generic (
+        BASE_PATH: string := ""
+    );
 end entity;
 
 architecture behavioral of integration_tb is
@@ -210,7 +213,7 @@ begin
             wait for BIT_PERIOD;
         end procedure;
         
-        file coord_file : text open read_mode is "../../resources/data/q0.8-coordinates.csv";
+        file coord_file : text open read_mode is BASE_PATH & "/test/resources/data/q0.8-coordinates.csv";
         variable L     : line;
         variable vx    : integer;
         variable vy    : integer;
@@ -250,7 +253,7 @@ begin
     end process;
 
     dump_sram: process
-        file dump_file : text open write_mode is "build/sram_dump.txt";        
+        file dump_file : text open write_mode is BASE_PATH & "/test/integration/uart-memory/build/sram_dump.txt";        
         variable L     : line;        
     begin
         wait until sram_loaded = '1';

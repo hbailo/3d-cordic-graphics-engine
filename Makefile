@@ -2,6 +2,8 @@ VIVADO        := /home/nano/opt/2023.2/Vivado/2023.2/bin/vivado
 VIVADO_SCRIPT := scripts/create-vivado-project.tcl
 BUILD_DIR     := build
 
+PROJECT_ROOT  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+
 .PHONY: all vivado clean help
 
 all: help
@@ -13,7 +15,7 @@ help:
 
 vivado:
 	mkdir -p $(BUILD_DIR)
-	$(VIVADO) -source $(VIVADO_SCRIPT) -log ${BUILD_DIR}/vivado.log -journal ${BUILD_DIR}/vivado.jou -tempDir ${BUILD_DIR}
+	$(VIVADO) -source $(VIVADO_SCRIPT) -log ${BUILD_DIR}/vivado.log -journal ${BUILD_DIR}/vivado.jou -tempDir ${BUILD_DIR} -tclargs ${PROJECT_ROOT}
 
 clean:
 	rm -rf ${BUILD_DIR}
