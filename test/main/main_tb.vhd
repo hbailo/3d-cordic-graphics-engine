@@ -5,6 +5,9 @@ use ieee.std_logic_1164.all;
 use std.textio.all;
 
 entity main_tb is
+    generic (
+        BASE_PATH: string := ""
+    );        
 end entity;
 
 architecture behavioral of main_tb is
@@ -163,7 +166,7 @@ begin
             wait for BIT_PERIOD;
         end procedure;
         
-        file coord_file   : text open read_mode is "../resources/data/q0.8-coordinates.csv";
+        file coord_file   : text open read_mode is BASE_PATH & "/test/resources/data/q0.8-coordinates.csv";
         variable L        : line;
         variable vx       : integer;
         variable vy       : integer;
@@ -205,7 +208,7 @@ begin
     -- VGA dump
     -- RATIONALE: https://ericeastwood.com/blog/vga-simulator-getting-started/
     vga_dump: process(clk)
-        file dump_file   : text open write_mode is "./build/vga_dump.txt";        
+        file dump_file   : text open write_mode is BASE_PATH & "/test/main/build/vga_dump.txt";
         variable line_el : line;
     begin
         if rising_edge(clk) then

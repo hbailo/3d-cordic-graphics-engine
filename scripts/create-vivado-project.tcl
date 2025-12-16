@@ -75,7 +75,7 @@ set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_ui_proc_video
 create_fileset -simset sim_main
 set_property file_type {VHDL 2008} [add_files -fileset sim_main ./test/main/main_tb.vhd]
 set_property top main_tb [get_filesets sim_main]
-#set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_main]
+set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_main]
 current_fileset -simset [get_filesets sim_main]
 
 # Resources

@@ -41,7 +41,7 @@ Run
 Run
 
 ```console
-    vivado -source scripts/create-vivado-project.tcl
+    vivado -source scripts/create-vivado-project.tcl -tclargs /project/root/absolute/path/
 ```
  
 ## Pre-synthesis testing
