@@ -156,8 +156,7 @@ begin
     process(clk, rst)
     begin
         if rst then
-            rx_buf       <= (others => '0');            
-            data_bit_index <= (others => '0');
+            rx_buf <= (others => '0');            
         elsif rising_edge(clk) then
             if state = DATA_BYTE and baud_x16_ena = '1' then
                 if baud_x16_ena_count = X16_BIT_MID then
