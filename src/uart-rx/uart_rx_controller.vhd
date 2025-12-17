@@ -140,24 +140,12 @@ begin
         end if;
     end process;
 
-    --! @brief Data bit index tracker
-    process(clk, rst)
-    begin
-        if rst then
-            data_bit_index <= (others => '0');
-        elsif rising_edge(clk) then
-            if state = DATA_BYTE and baud_x16_ena = '1' and baud_x16_ena_count = 15 then
-                data_bit_index <= data_bit_index + 1;
-            end if;
-        end if;
-    end process;
-
     --! @brief Data buffer shift register
     process(clk, rst)
     begin
         if rst then
-            rx_buf       <= (others => '0');            
-            data_bit_index <= (others => '0');
+            rx_buf         <= (others => '0');
+            data_bit_index <= (others => '0');            
         elsif rising_edge(clk) then
             if state = DATA_BYTE and baud_x16_ena = '1' then
                 if baud_x16_ena_count = X16_BIT_MID then
