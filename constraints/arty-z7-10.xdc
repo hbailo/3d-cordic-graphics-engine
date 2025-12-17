@@ -2,7 +2,7 @@
 set_property -dict { PACKAGE_PIN H16    IOSTANDARD LVCMOS33 } [get_ports { sysclk }];   #IO_L13P_T2_MRCC_35 Sch=SYSCLK
 create_clock -add -name sysclk_pin -period 8.00 -waveform {0 4} [get_ports { sysclk }]; #set
 
-# UART rx
+## UART rx
 set_property -dict { PACKAGE_PIN Y18    IOSTANDARD LVCMOS33 } [get_ports { rx }]; #IO_L17P_T2_34 Sch=JA1_P
 
 ## Reset button
