@@ -7,9 +7,11 @@
     },
     "files": [
         {"file": "src/main.vhd"},
+        {"file": "src/memory/bram.vhd"},                
+        {"file": "src/memory/bram_controller.vhd"},        
         {"file": "src/memory/memory_loader.vhd"},
         {"file": "src/memory/memory_reader.vhd"},
-        {"file": "src/memory/sram_controller.vhd"},        
+        {"file": "src/memory/sram_controller.vhd"},                
         {"file": "src/processing/projector/orthographic_projector.vhd"},
         {"file": "src/processing/rotator/cordic/cordic_pipeline_synchronizer.vhd"},        
         {"file": "src/processing/rotator/cordic/cordic_postprocessor.vhd"},
