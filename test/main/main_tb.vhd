@@ -148,8 +148,9 @@ begin
 
     clk <= not clk after CLK_PERIOD / 2;
     
+     -- Uart tx simulation
     uart_tx: process
-        procedure send_byte(b : in std_logic_vector(7 downto 0)) is
+        procedure push_tx_byte(byte : in std_logic_vector(7 downto 0)) is
         begin
             -- Start bit
             rx <= '0';
@@ -157,7 +158,7 @@ begin
 
             -- Data bits (LSB first)
             for i in 0 to 7 loop
-                rx <= b(i);
+                rx <= byte(i);
                 wait for BIT_PERIOD;
             end loop;
 
@@ -166,41 +167,49 @@ begin
             wait for BIT_PERIOD;
         end procedure;
         
-        file coord_file   : text open read_mode is BASE_PATH & "/test/resources/data/q0.8-coordinates.csv";
-        variable L        : line;
-        variable vx       : integer;
-        variable vy       : integer;
-        variable vz       : integer;
-        variable dummy    : string(1 to 1);
+        file input_csv    : text open read_mode is BASE_PATH & "/test/resources/data/q0.8-coordinates.csv";
+        variable line_buf : line;
+        variable x_int    : integer;
+        variable y_int    : integer;
+        variable z_int    : integer;
+        variable comma    : string(1 to 1);
         variable data_buf : std_logic_vector(31 downto 0);
     begin
         rst <= '1', '0' after CLK_PERIOD / 4;
         wait until rst = '1';
         wait until rising_edge(clk);
-
-        -- Load csv file
-        readline(coord_file, L);
         
-        while not endfile(coord_file) loop
-            readline(coord_file, L);
+        readline(input_csv, line_buf);
+        
+        while not endfile(input_csv) loop
+            readline(input_csv, line_buf);
 
-            -- Read coordinates x,y,z (comma separated)
-            read(L, vx);
-            read(L, dummy);  -- comma
-            read(L, vy);
-            read(L, dummy);  -- comma
-            read(L, vz);
+            read(line_buf, x_int);
+            read(line_buf, comma);
+            read(line_buf, y_int);
+            read(line_buf, comma);
+            read(line_buf, z_int);
  
-            data_buf := std_logic_vector(to_signed(vx, DATA_WIDTH)) &
-                        std_logic_vector(to_signed(vy, DATA_WIDTH)) &
-                        std_logic_vector(to_signed(vz, DATA_WIDTH)) &
+            data_buf := std_logic_vector(to_signed(x_int, DATA_WIDTH)) &
+                        std_logic_vector(to_signed(y_int, DATA_WIDTH)) &
+                        std_logic_vector(to_signed(z_int, DATA_WIDTH)) &
                         "00000";
                         
-            send_byte(data_buf(31 downto 24));            
-            send_byte(data_buf(23 downto 16));
-            send_byte(data_buf(15 downto 8));
-            send_byte(data_buf(7 downto 0));
+            push_tx_byte(data_buf(31 downto 24));            
+            push_tx_byte(data_buf(23 downto 16));
+            push_tx_byte(data_buf(15 downto 8));
+            push_tx_byte(data_buf(7 downto 0));
         end loop;
+        
+        wait;
+    end process;
+
+    -- Ui simulation
+    ui: process
+    begin
+        x_angle_up_sw   <= '1' after 10 ms, '0' after 45 ms;
+        y_angle_down_sw <= '1' after 20 ms, '0' after 65 ms;
+        z_angle_down_sw <= '1' after 30 ms; 
         
         wait;
     end process;

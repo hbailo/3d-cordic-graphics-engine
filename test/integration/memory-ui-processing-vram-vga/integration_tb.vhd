@@ -91,14 +91,13 @@ architecture behavioral of integration_tb is
     signal z_angle_down    : std_logic;
     
     -- Rotator
-    signal x_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal y_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);    
     signal z_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal valid_rot  : std_logic;
 
     -- Projector
-    signal y_proj     : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal z_proj     : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal x_2d       : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal y_2d       : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal valid_proj : std_logic;
 
     -- VGA
@@ -370,28 +369,16 @@ begin
             x_angle => x_angle,
             y_angle => y_angle,
             z_angle => z_angle,
-            xo      => x_rot,
+            xo      => open,
             yo      => y_rot,
             zo      => z_rot,
             valid   => valid_rot
         );
     
     --! 3D to 2D projector
-    projector: entity work.orthographic_projector
-        generic map (
-            DATA_WIDTH => DATA_WIDTH
-        )
-        port map (
-            clk   => clk,
-            rst   => rst,
-            start => valid_rot,
-            xi    => x_rot,
-            yi    => y_rot,
-            zi    => z_rot,
-            yo    => y_proj,
-            zo    => z_proj,
-            valid => valid_proj
-        );     
+    x_2d       <= y_rot;
+    y_2d       <= z_rot;
+    valid_proj <= valid_rot;      
 
     --! Bitmap clear/draw sequencer
     bitmap_sequencer: entity work.bitmap_sequencer
@@ -404,8 +391,8 @@ begin
             clk       => clk,
             rst       => rst,
             draw      => valid_proj,
-            x         => y_proj,
-            y         => z_proj,
+            x         => x_2d,
+            y         => y_2d,
             clear     => refresh_tick,
             vram_we   => vram_we,
             vram_addr => vram_w_addr,

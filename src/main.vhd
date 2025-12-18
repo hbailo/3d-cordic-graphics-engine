@@ -143,7 +143,7 @@ end entity;
 --! @details
 --! Instantiates all submodules:
 --! - uart_rx for receiving point data
---! - memory_loader and memory_reader for SRAM access
+--! - memory_loader and memory_reader for RAM access
 --! - sram_controller for sram multiplexing
 --! - switch_debouncer and angle_stepper for user input
 --! - xyz_rotator and orthographic_projector for 3D processing
@@ -156,28 +156,28 @@ architecture structural of main is
     signal rx_empty  : std_logic;
     signal rx_buffer : std_logic_vector(7 downto 0);
     
-    -- SRAM reader    
-    signal x                 : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal y                 : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal z                 : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal reader_sram_addr  : std_logic_vector(17 downto 0);        
-    signal reader_sram_rw    : std_logic;
-    signal reader_sram_start : std_logic;        
-    signal valid_sram_read   : std_logic;
+    -- RAM reader    
+    signal x                : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal y                : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal z                : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal reader_ram_addr  : std_logic_vector(17 downto 0);        
+    signal reader_ram_rw    : std_logic;
+    signal reader_ram_start : std_logic;        
+    signal valid_ram_read   : std_logic;
 
-    -- SRAM loader
-    signal sram_loaded       : std_logic;
-    signal loader_sram_addr  : std_logic_vector(17 downto 0);    
-    signal loader_sram_rw    : std_logic;
-    signal loader_sram_start : std_logic;
+    -- RAM loader
+    signal ram_loaded       : std_logic;
+    signal loader_ram_addr  : std_logic_vector(17 downto 0);    
+    signal loader_ram_rw    : std_logic;
+    signal loader_ram_start : std_logic;
 
-    -- SRAM controller
-    signal sram_start : std_logic;
-    signal sram_rw    : std_logic;
-    signal sram_addr  : std_logic_vector(17 downto 0);
-    signal sram_din   : std_logic_vector(31 downto 0);
-    signal sram_dout  : std_logic_vector(31 downto 0);
-    signal sram_ready : std_logic;
+    -- RAM controller
+    signal ram_start : std_logic;
+    signal ram_rw    : std_logic;
+    signal ram_addr  : std_logic_vector(17 downto 0);
+    signal ram_din   : std_logic_vector(31 downto 0);
+    signal ram_dout  : std_logic_vector(31 downto 0);
+    signal ram_ready : std_logic;
     
     -- UI
     signal x_angle      : std_logic_vector(DATA_WIDTH - 1 downto 0);
@@ -193,24 +193,23 @@ architecture structural of main is
     signal z_angle_down : std_logic;
 
     -- Rotator
-    signal x_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal y_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);    
-    signal z_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal valid_rot  : std_logic;
+    signal y_rot     : std_logic_vector(DATA_WIDTH - 1 downto 0);    
+    signal z_rot     : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal valid_rot : std_logic;
 
     -- Projector
-    signal y_proj     : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal z_proj     : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal x_2d       : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal y_2d       : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal valid_proj : std_logic;
 
     -- VRAM
     constant VRAM_ADDR_WIDTH : integer := integer(ceil(log2(real(BITMAP_WIDTH_PX * BITMAP_HEIGHT_PX))));
     
-    signal vram_we      : std_logic;
-    signal vram_w_addr  : std_logic_vector(VRAM_ADDR_WIDTH - 1 downto 0);
-    signal vram_din     : std_logic;
-    signal vram_r_addr  : std_logic_vector(VRAM_ADDR_WIDTH - 1 downto 0);
-    signal vram_dout    : std_logic;
+    signal vram_we     : std_logic;
+    signal vram_w_addr : std_logic_vector(VRAM_ADDR_WIDTH - 1 downto 0);
+    signal vram_din    : std_logic;
+    signal vram_r_addr : std_logic_vector(VRAM_ADDR_WIDTH - 1 downto 0);
+    signal vram_dout   : std_logic;
 
     -- VGA
     signal refresh_tick : std_logic;
@@ -233,7 +232,8 @@ begin
     --! Memory loader
     memory_loader: entity work.memory_loader
         generic map (
-            DATA_POINTS => DATA_POINTS
+            DATA_POINTS => DATA_POINTS,
+            ADDR_WIDTH  => loader_ram_addr'length
         )
         port map (
             clk        => clk,
@@ -241,46 +241,47 @@ begin
             rx_buffer  => rx_buffer,
             rx_empty   => rx_empty,
             rx_read    => rx_read,
-            sram_ready => sram_ready,
-            sram_addr  => loader_sram_addr,
-            sram_din   => sram_din,
-            sram_start => loader_sram_start,
-            sram_rw    => loader_sram_rw,
-            loaded     => sram_loaded
+            ram_ready  => ram_ready,
+            ram_addr   => loader_ram_addr,
+            ram_din    => ram_din,
+            ram_start  => loader_ram_start,
+            ram_rw     => loader_ram_rw,
+            loaded     => ram_loaded
         );
 
     --! Memory reader
     memory_reader: entity work.memory_reader
         generic map (
             DATA_POINTS => DATA_POINTS,
-            DATA_WIDTH  => DATA_WIDTH
+            DATA_WIDTH  => DATA_WIDTH,
+            ADDR_WIDTH  => reader_ram_addr'length
         )
         port map (
-            clk        => clk,
-            rst        => rst,
-            start      => sram_loaded,
-            sram_ready => sram_ready,
-            sram_dout  => sram_dout,            
-            sram_addr  => reader_sram_addr,
-            sram_start => reader_sram_start,
-            sram_rw    => reader_sram_rw,
-            x          => x,
-            y          => y,
-            z          => z,
-            valid      => valid_sram_read
+            clk       => clk,
+            rst       => rst,
+            start     => ram_loaded,
+            ram_ready => ram_ready,
+            ram_dout  => ram_dout,            
+            ram_addr  => reader_ram_addr,
+            ram_start => reader_ram_start,
+            ram_rw    => reader_ram_rw,
+            x         => x,
+            y         => y,
+            z         => z,
+            valid     => valid_ram_read
         );
 
     --! Memory loader / reader mux
     process(all)
     begin
-        if sram_loaded = '1' then
-            sram_addr  <= reader_sram_addr;            
-            sram_start <= reader_sram_start;
-            sram_rw    <= reader_sram_rw;
+        if ram_loaded = '1' then
+            ram_addr  <= reader_ram_addr;            
+            ram_start <= reader_ram_start;
+            ram_rw    <= reader_ram_rw;
         else
-            sram_addr  <= loader_sram_addr;                        
-            sram_start <= loader_sram_start;            
-            sram_rw    <= loader_sram_rw;
+            ram_addr  <= loader_ram_addr;                        
+            ram_start <= loader_ram_start;            
+            ram_rw    <= loader_ram_rw;
         end if;
     end process;
     
@@ -289,12 +290,12 @@ begin
         port map (
             clk    => clk,
             rst    => rst,
-            start  => sram_start,
-            rw     => sram_rw,
-            addr   => sram_addr,
-            din    => sram_din,
-            dout   => sram_dout,
-            ready  => sram_ready,            
+            start  => ram_start,
+            rw     => ram_rw,
+            addr   => ram_addr,
+            din    => ram_din,
+            dout   => ram_dout,
+            ready  => ram_ready,            
             addr_a => addr_a,
             dio_a  => dio_a,
             we_n_a => we_n_a,
@@ -443,35 +444,23 @@ begin
         port map (
             clk     => clk,
             rst     => rst,
-            start   => valid_sram_read,
+            start   => valid_ram_read,
             xi      => x,
             yi      => y,
             zi      => z,
             x_angle => x_angle,
             y_angle => y_angle,
             z_angle => z_angle,
-            xo      => x_rot,
+            xo      => open,
             yo      => y_rot,
             zo      => z_rot,
             valid   => valid_rot
         );
     
     --! 3D to 2D projector
-    projector: entity work.orthographic_projector
-        generic map (
-            DATA_WIDTH => DATA_WIDTH
-        )
-        port map (
-            clk   => clk,
-            rst   => rst,
-            start => valid_rot,
-            xi    => x_rot,
-            yi    => y_rot,
-            zi    => z_rot,
-            yo    => y_proj,
-            zo    => z_proj,
-            valid => valid_proj
-        );     
+    x_2d       <= y_rot;
+    y_2d       <= z_rot;
+    valid_proj <= valid_rot;    
 
     --! Bitmap clear/draw sequencer
     bitmap_sequencer: entity work.bitmap_sequencer
@@ -484,8 +473,8 @@ begin
             clk       => clk,
             rst       => rst,
             draw      => valid_proj,
-            x         => y_proj,
-            y         => z_proj,
+            x         => x_2d,
+            y         => y_2d,
             clear     => refresh_tick,
             vram_we   => vram_we,
             vram_addr => vram_w_addr,
