@@ -18,6 +18,7 @@ readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 ghdl -a $GHDL_FLAGS $SRCDIR/memory_loader.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/memory_reader.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/sram_controller.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/bram.vhd
 ghdl -a $GHDL_FLAGS $RESDIR/mocks/sram_mock/sram_mock.vhd
 
 # Testbench analysis

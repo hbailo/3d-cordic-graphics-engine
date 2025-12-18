@@ -28,29 +28,29 @@ architecture behavioral of integration_tb is
     -- SRAM reader
     constant DATA_WIDTH : positive := 9;
     
-    signal x                 : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal y                 : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal z                 : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal reader_sram_addr  : std_logic_vector(17 downto 0);        
-    signal reader_sram_rw    : std_logic;
-    signal reader_sram_start : std_logic;        
-    signal valid_sram_read   : std_logic;
+    signal x                : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal y                : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal z                : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal reader_ram_addr  : std_logic_vector(17 downto 0);        
+    signal reader_ram_rw    : std_logic;
+    signal reader_ram_start : std_logic;        
+    signal valid_ram_read   : std_logic;
     
     -- SRAM loader
-    constant DATA_POINTS : positive := 10;
+    constant DATA_POINTS : positive := 100;
 
-    signal sram_loaded       : std_logic;
-    signal loader_sram_addr  : std_logic_vector(17 downto 0);    
-    signal loader_sram_rw    : std_logic;
-    signal loader_sram_start : std_logic;
+    signal ram_loaded       : std_logic;
+    signal loader_ram_addr  : std_logic_vector(17 downto 0);    
+    signal loader_ram_rw    : std_logic;
+    signal loader_ram_start : std_logic;
     
     -- SRAM controller
-    signal sram_start : std_logic;
-    signal sram_rw    : std_logic;
-    signal sram_addr  : std_logic_vector(17 downto 0);
-    signal sram_din   : std_logic_vector(31 downto 0);
-    signal sram_dout  : std_logic_vector(31 downto 0);
-    signal sram_ready : std_logic;
+    signal ram_start : std_logic;
+    signal ram_rw    : std_logic;
+    signal ram_addr  : std_logic_vector(17 downto 0);
+    signal ram_din   : std_logic_vector(31 downto 0);
+    signal ram_dout  : std_logic_vector(31 downto 0);
+    signal ram_ready : std_logic;
     
     -- SRAM A    
     signal addr_a : std_logic_vector(17 downto 0);
@@ -70,8 +70,8 @@ architecture behavioral of integration_tb is
     signal ub_n_b : std_logic;
     signal lb_n_b : std_logic;
 
-    constant SRAM_MOCK_ADDR_WIDTH: positive := integer(ceil(log2(real(DATA_POINTS))));
-    constant BIT_PERIOD  : time := 1 sec / real(BAUD_RATE);        
+    constant RAM_ADDR_WIDTH : positive := integer(ceil(log2(real(DATA_POINTS))));
+    constant BIT_PERIOD     : time     := 1 sec / real(BAUD_RATE);        
 begin
     uart_rx: entity work.uart_rx
         generic map (
@@ -89,53 +89,55 @@ begin
     
     memory_loader: entity work.memory_loader
         generic map (
-            DATA_POINTS => DATA_POINTS
+            DATA_POINTS => DATA_POINTS,
+            ADDR_WIDTH  => loader_ram_addr'length
         )
         port map (
-            clk        => clk,
-            rst        => rst,
-            rx_buffer  => rx_buffer,
-            rx_empty   => rx_empty,
-            rx_read    => rx_read,
-            sram_ready => sram_ready,
-            sram_addr  => loader_sram_addr,
-            sram_din   => sram_din,
-            sram_start => loader_sram_start,
-            sram_rw    => loader_sram_rw,
-            loaded     => sram_loaded
+            clk       => clk,
+            rst       => rst,
+            rx_buffer => rx_buffer,
+            rx_empty  => rx_empty,
+            rx_read   => rx_read,
+            ram_ready => ram_ready,
+            ram_addr  => loader_ram_addr,
+            ram_din   => ram_din,
+            ram_start => loader_ram_start,
+            ram_rw    => loader_ram_rw,
+            loaded    => ram_loaded
         );
 
     memory_reader: entity work.memory_reader
         generic map (
             DATA_POINTS => DATA_POINTS,
-            DATA_WIDTH  => DATA_WIDTH
+            DATA_WIDTH  => DATA_WIDTH,
+            ADDR_WIDTH  => reader_ram_addr'length            
         )
         port map (
-            clk        => clk,
-            rst        => rst,
-            start      => sram_loaded,
-            sram_ready => sram_ready,
-            sram_dout  => sram_dout,            
-            sram_addr  => reader_sram_addr,
-            sram_start => reader_sram_start,
-            sram_rw    => reader_sram_rw,
-            x          => x,
-            y          => y,
-            z          => z,
-            valid      => valid_sram_read
+            clk       => clk,
+            rst       => rst,
+            start     => ram_loaded,
+            ram_ready => ram_ready,
+            ram_dout  => ram_dout,            
+            ram_addr  => reader_ram_addr,
+            ram_start => reader_ram_start,
+            ram_rw    => reader_ram_rw,
+            x         => x,
+            y         => y,
+            z         => z,
+            valid     => valid_ram_read
         );
 
     --! Memory loader / reader mux
     process(all)
     begin
-        if sram_loaded = '1' then
-            sram_addr  <= reader_sram_addr;            
-            sram_start <= reader_sram_start;
-            sram_rw    <= reader_sram_rw;
+        if ram_loaded = '1' then
+            ram_addr  <= reader_ram_addr;            
+            ram_start <= reader_ram_start;
+            ram_rw    <= reader_ram_rw;
         else
-            sram_addr  <= loader_sram_addr;                        
-            sram_start <= loader_sram_start;            
-            sram_rw    <= loader_sram_rw;
+            ram_addr  <= loader_ram_addr;                        
+            ram_start <= loader_ram_start;            
+            ram_rw    <= loader_ram_rw;
         end if;
     end process;
     
@@ -143,12 +145,12 @@ begin
         port map (
             clk    => clk,
             rst    => rst,
-            start  => sram_start,
-            rw     => sram_rw,
-            addr   => sram_addr,
-            din    => sram_din,
-            dout   => sram_dout,
-            ready  => sram_ready,            
+            start  => ram_start,
+            rw     => ram_rw,
+            addr   => ram_addr,
+            din    => ram_din,
+            dout   => ram_dout,
+            ready  => ram_ready,            
             addr_a => addr_a,
             dio_a  => dio_a,
             we_n_a => we_n_a,
@@ -167,7 +169,7 @@ begin
 
     sram_a: entity work.sram_mock
         generic map (
-            ADDR_WIDTH => SRAM_MOCK_ADDR_WIDTH
+            ADDR_WIDTH => RAM_ADDR_WIDTH 
         )
         port map (
             addr => addr_a,
@@ -181,7 +183,7 @@ begin
 
     sram_b: entity work.sram_mock
         generic map (
-            ADDR_WIDTH => SRAM_MOCK_ADDR_WIDTH
+            ADDR_WIDTH => RAM_ADDR_WIDTH 
         )        
         port map (
             addr => addr_b,
@@ -195,8 +197,8 @@ begin
     
     clk <= not clk after CLK_PERIOD / 2;
     
-    load_sram: process
-        procedure send_byte(b : in std_logic_vector(7 downto 0)) is
+    uart_tx: process
+        procedure push_tx_byte(byte : in std_logic_vector(7 downto 0)) is
         begin
             -- Start bit
             rx <= '0';
@@ -204,7 +206,7 @@ begin
 
             -- Data bits (LSB first)
             for i in 0 to 7 loop
-                rx <= b(i);
+                rx <= byte(i);
                 wait for BIT_PERIOD;
             end loop;
 
@@ -213,65 +215,68 @@ begin
             wait for BIT_PERIOD;
         end procedure;
         
-        file coord_file : text open read_mode is BASE_PATH & "/test/resources/data/q0.8-coordinates.csv";
-        variable L     : line;
-        variable vx    : integer;
-        variable vy    : integer;
-        variable vz    : integer;
-        variable dummy : string(1 to 1);
+        file input_csv    : text open read_mode is BASE_PATH & "/test/resources/data/q0.8-coordinates.csv";
+        variable line_buf : line;
+        variable x_int    : integer;
+        variable y_int    : integer;
+        variable z_int    : integer;
+        variable comma    : string(1 to 1);
         variable data_buf : std_logic_vector(31 downto 0);
     begin
         rst <= '1', '0' after CLK_PERIOD / 4;
         wait until rst = '1';
         wait until rising_edge(clk);
-
-        -- Load csv file
-        readline(coord_file, L); -- Header line
         
-        while not endfile(coord_file) loop
-            readline(coord_file, L);
+        readline(input_csv, line_buf);
+        
+        while not endfile(input_csv) loop
+            readline(input_csv, line_buf);
 
-            -- Read coordinates x,y,z (comma separated)
-            read(L, vx);
-            read(L, dummy);  -- comma
-            read(L, vy);
-            read(L, dummy);  -- comma
-            read(L, vz);
+            read(line_buf, x_int);
+            read(line_buf, comma);
+            read(line_buf, y_int);
+            read(line_buf, comma);
+            read(line_buf, z_int);
  
-            data_buf := std_logic_vector(to_signed(vx, DATA_WIDTH)) &
-                        std_logic_vector(to_signed(vy, DATA_WIDTH)) &
-                        std_logic_vector(to_signed(vz, DATA_WIDTH)) &
+            data_buf := std_logic_vector(to_signed(x_int, DATA_WIDTH)) &
+                        std_logic_vector(to_signed(y_int, DATA_WIDTH)) &
+                        std_logic_vector(to_signed(z_int, DATA_WIDTH)) &
                         "00000";
                         
-            send_byte(data_buf(31 downto 24));            
-            send_byte(data_buf(23 downto 16));
-            send_byte(data_buf(15 downto 8));
-            send_byte(data_buf(7 downto 0));
+            push_tx_byte(data_buf(31 downto 24));            
+            push_tx_byte(data_buf(23 downto 16));
+            push_tx_byte(data_buf(15 downto 8));
+            push_tx_byte(data_buf(7 downto 0));
         end loop;
         
         wait;
     end process;
 
     dump_sram: process
-        file dump_file : text open write_mode is BASE_PATH & "/test/integration/uart-memory/build/sram_dump.txt";        
-        variable L     : line;        
+        file dump_csv : text open write_mode is BASE_PATH & "/test/integration/uart-memory/build/ram_dump.txt";        
+        variable line_buf : line;        
     begin
-        wait until sram_loaded = '1';
+        wait until ram_loaded = '1';
+
+        -- Write header
+        write(line_buf, string'("x,y,z"));
+        writeline(dump_csv, line_buf);
         
-        for i in 0 to DATA_POINTS loop
-            wait until rising_edge(valid_sram_read);            
+        for i in 0 to DATA_POINTS - 1 loop
+            wait until rising_edge(valid_ram_read);            
 
-            write(L, integer(to_integer(signed(x))));
-            write(L, string'(","));                                
-            write(L, integer(to_integer(signed(y))));
-            write(L, string'(","));                                                
-            write(L, integer(to_integer(signed(z))));
+            write(line_buf, to_integer(signed(x)));
+            write(line_buf, string'(","));                                
+            write(line_buf, to_integer(signed(y)));
+            write(line_buf, string'(","));                                                
+            write(line_buf, to_integer(signed(z)));
 
-            writeline(dump_file, L);
-            L := null;
+            writeline(dump_csv, line_buf);
+            line_buf := null;
             
-            wait until valid_sram_read = '0';
+            wait until valid_ram_read = '0';
         end loop;
-        wait;
+        
+        std.env.finish;
     end process;
 end architecture;
