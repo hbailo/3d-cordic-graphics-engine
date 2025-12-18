@@ -19,7 +19,6 @@ readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 ghdl -a $GHDL_FLAGS $SRCDIR/memory/memory_loader.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/memory/memory_reader.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/memory/sram_controller.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/processing/projector/orthographic_projector.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/cordic/cordic_pipeline_synchronizer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/cordic/cordic_preprocessor.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/processing/rotator/cordic/cordic_stage.vhd
