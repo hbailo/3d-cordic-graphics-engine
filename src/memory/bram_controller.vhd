@@ -35,26 +35,20 @@ entity bram_controller is
         --! @details High when controller is idle and ready for a new transaction
         ready: out std_logic;
 
-        --! Enable for ram port A
-        en_a: out std_logic;
-
-        --! Enable for ramport B
-        en_b: out std_logic;
+        --! Enable for ram
+        bram_ena: out std_logic;
         
-        --! Write enable for ram port A        
-        we_a: out std_logic;
+        --! Write enable for ram
+        bram_we: out std_logic;
 
-        --! Address for port A
-        addr_a: out std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        --! Address for ram
+        bram_addr: out std_logic_vector(ADDR_WIDTH - 1 downto 0);
 
-        --! Address for port B
-        addr_b: out std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        --! Data input for ram
+        bram_din: out std_logic_vector(31 downto 0);
 
-        --! Data input for ram port A
-        din_a: out std_logic_vector(31 downto 0);
-
-        --! Data output for ram port B
-        dout_b: in std_logic_vector(31 downto 0)
+        --! Data output for ram
+        bram_dout: in std_logic_vector(31 downto 0)
     );
 end;
 
@@ -112,44 +106,36 @@ begin
     process(clk, rst)
     begin
         if rst then
-            addr_a <= (others => '0');
-            addr_b <= (others => '0');            
-            we_a   <= '0';
-            en_a   <= '0';
-            en_b   <= '0';
-            din_a  <= (others => '0');
-            ready  <= '1';
+            bram_addr <= (others => '0');
+            bram_we   <= '0';
+            bram_ena  <= '0';
+            bram_din  <= (others => '0');
+            ready     <= '1';
         elsif rising_edge(clk) then
             case next_state is
             when IDLE =>
-                addr_a <= (others => '0');
-                addr_b <= (others => '0');            
-                we_a   <= '0';
-                en_a   <= '0';
-                en_b   <= '0';
-                din_a  <= (others => '0');
-                ready  <= '1';
+                bram_addr <= (others => '0');
+                bram_we   <= '0';
+                bram_ena  <= '0';
+                bram_din  <= (others => '0');
+                ready     <= '1';
                
             when READING_1 =>
-                addr_a <= (others => '0');
-                addr_b <= addr;            
-                we_a   <= '0';
-                en_a   <= '0';
-                en_b   <= '1';
-                din_a  <= (others => '0');
-                ready  <= '0';
+                bram_addr <= addr;            
+                bram_we   <= '0';
+                bram_ena  <= '1';
+                bram_din  <= (others => '0');
+                ready     <= '0';
                 
             when READING_2 =>
                 null;
                         
             when WRITING_1 =>
-                addr_a <= addr;
-                addr_b <= (others => '0');            
-                we_a   <= '1';
-                en_a   <= '1';
-                en_b   <= '0';
-                din_a  <= din;
-                ready  <= '0';
+                bram_addr <= addr;
+                bram_we   <= '1';
+                bram_ena  <= '1';
+                bram_din  <= din;
+                ready     <= '0';
                 
             when WRITING_2 =>
                 null;
@@ -171,7 +157,7 @@ begin
                 null;
 
             when READING_2 =>
-                dout <= dout_b;
+                dout <= bram_dout;
 
             when WRITING_1 =>
                 null;
