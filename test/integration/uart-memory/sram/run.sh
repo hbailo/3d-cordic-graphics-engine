@@ -2,10 +2,10 @@
 set -euo pipefail
 
 # Paths definitions
-readonly BASE_PATH="../../.."
-readonly SRCDIR="../../../src"
-readonly TESTDIR="../.."
-readonly WORKDIR="../../../build"
+readonly BASE_PATH="../../../.."
+readonly SRCDIR="${BASE_PATH}/src"
+readonly RESDIR="${BASE_PATH}/test"
+readonly WORKDIR="${BASE_PATH}/build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
@@ -16,15 +16,15 @@ readonly DUT="integration"
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
+ghdl -a $GHDL_FLAGS $SRCDIR/memory/sram_controller.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/memory/memory_loader.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/memory/memory_reader.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/meta_harden.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/baud_rate_generator.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/uart_rx_controller.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/uart_rx_interface.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/uart_rx.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/memory/memory_loader.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/memory/memory_reader.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/memory/sram_controller.vhd
-ghdl -a $GHDL_FLAGS $TESTDIR/resources/mocks/sram_mock/sram_mock.vhd
+ghdl -a $GHDL_FLAGS $RESDIR/resources/mocks/sram_mock/sram_mock.vhd
 
 # Testbench analysis
 ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd

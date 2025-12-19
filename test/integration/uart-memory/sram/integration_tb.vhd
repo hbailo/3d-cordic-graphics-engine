@@ -37,7 +37,7 @@ architecture behavioral of integration_tb is
     signal valid_ram_read   : std_logic;
     
     -- SRAM loader
-    constant DATA_POINTS : positive := 100;
+    constant DATA_POINTS : positive := 20;
 
     signal ram_loaded       : std_logic;
     signal loader_ram_addr  : std_logic_vector(17 downto 0);    
@@ -253,7 +253,7 @@ begin
     end process;
 
     dump_sram: process
-        file dump_csv : text open write_mode is BASE_PATH & "/test/integration/uart-memory/build/ram_dump.txt";        
+        file dump_csv : text open write_mode is BASE_PATH & "/test/integration/uart-memory/sram/build/ram_dump.txt";        
         variable line_buf : line;        
     begin
         wait until ram_loaded = '1';
