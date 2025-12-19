@@ -4,8 +4,12 @@
 # Project settings
 # ---------------------------------------
 set proj_name 3d-cordic-graphics-engine
-set proj_dir  ./build/vivado2
+#A7-35
+set proj_dir  ./build/vivado-arty-a7-35
 set part xc7z010clg400-1
+#Z7-10
+#set proj_dir  ./build/vivado-arty-z7-10
+#set part xc7a35ticsg324-1L
 
 # ---------------------------------------
 # Args processing
@@ -20,7 +24,8 @@ create_project -part $part $proj_name $proj_dir
 # ---------------------------------------
 # Set board 
 # ---------------------------------------
-set_property board_part digilentinc.com:arty-z7-10:part0:1.1 [current_project]
+#set_property board_part digilentinc.com:arty-z7-10:part0:1.1 [current_project]
+set_property board_part digilentinc.com:arty-a7-35:part0:1.1 [current_project]
 
 # ---------------------------------------
 # Set project-level VHDL 2008
