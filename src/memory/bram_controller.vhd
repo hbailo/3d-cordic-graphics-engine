@@ -54,11 +54,11 @@ end;
 
 --! @brief FSM architecture of the RAM controller
 --! @details
---! Implements a five-state FSM (IDLE, READING_1, READING_2,
---! WRITING_1, WRITING_2) that sequences all RAM control
+--! Implements a five-state FSM (IDLE, READ_REQUEST, READING_WAIT,
+--! WRITE_REQUEST, WRITE_WAIT) that sequences all RAM control
 --! strobes.
 architecture fsm of bram_controller is
-    type state_t is (IDLE, READING_1, READING_2, WRITING_1, WRITING_2);
+    type state_t is (IDLE, WRITE_REQUEST, WRITE_WAIT, READ_REQUEST, READ_WAIT);
     
     signal state: state_t;
     signal next_state: state_t;
@@ -82,57 +82,58 @@ begin
         when IDLE =>
             if start then
                 if rw = '0' then
-                    next_state <= WRITING_1;
+                    next_state <= WRITE_REQUEST;
                 else
-                    next_state <= READING_1;
+                    next_state <= READ_REQUEST;
                 end if;
             end if;
             
-        when READING_1 =>
-            next_state <= READING_2;
+        when READ_REQUEST =>
+            next_state <= READ_WAIT;
 
-        when READING_2 =>
+        when READ_WAIT =>
             next_state <= IDLE;
 
-        when WRITING_1 =>
-            next_state <= WRITING_2;
+        when WRITE_REQUEST =>
+            next_state <= WRITE_WAIT;
             
-        when WRITING_2 =>
+        when WRITE_WAIT =>
             next_state <= IDLE;
         end case;
     end process;
 
     --! Mealy outputs (no latency)
-    process(clk)
+    process(clk, rst)
     begin
-        if rising_edge(clk) then
+        if rst then
+            bram_we  <= '0';
+            bram_ena <= '0';
+            ready    <= '1';            
+        elsif rising_edge(clk) then
             case next_state is
             when IDLE =>
-                bram_addr <= (others => '0');
                 bram_we   <= '0';
                 bram_ena  <= '0';
-                bram_din  <= (others => '0');
                 ready     <= '1';
                
-            when READING_1 =>
+            when READ_REQUEST =>
                 bram_addr <= addr;            
-                bram_we   <= '0';
                 bram_ena  <= '1';
-                bram_din  <= (others => '0');
                 ready     <= '0';
                 
-            when READING_2 =>
-                null;
+            when READ_WAIT =>
+                bram_ena  <= '0';                
                         
-            when WRITING_1 =>
+            when WRITE_REQUEST =>
                 bram_addr <= addr;
                 bram_we   <= '1';
                 bram_ena  <= '1';
                 bram_din  <= din;
                 ready     <= '0';
                 
-            when WRITING_2 =>
-                null;
+            when WRITE_WAIT =>
+                bram_we   <= '0';
+                bram_ena  <= '0';                
             end case;
         end if;
     end process;
