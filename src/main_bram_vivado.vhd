@@ -3,17 +3,20 @@ use ieee.std_logic_1164.all;
 
 entity main_bram_vivado is
     port (
-        sysclk: in std_logic;
-        rst: in std_logic;
-        rx: in std_logic;
-        x_angle_up_sw: in std_logic;
-        y_angle_up_sw: in std_logic;
-        z_angle_up_sw: in std_logic;
-        h_sync: out std_logic;
-        v_sync: out std_logic;
-        red: out std_logic;
-        green: out std_logic;
-        blue: out std_logic
+        sysclk          : in std_logic;
+        rst             : in std_logic;
+        rx              : in std_logic;
+        x_angle_up_sw   : in std_logic;
+        y_angle_up_sw   : in std_logic;
+        z_angle_up_sw   : in std_logic;
+        x_angle_up_down : in std_logic;
+        y_angle_up_down : in std_logic;
+        z_angle_up_down : in std_logic;        
+        h_sync          : out std_logic;
+        v_sync          : out std_logic;
+        red             : out std_logic;
+        green           : out std_logic;
+        blue            : out std_logic
     );
 end entity;
 
@@ -30,32 +33,6 @@ architecture behavioral of main_bram_vivado is
     constant BITMAP_HEIGHT_PX   : positive := 320;
     constant BITMAP_X_START_PX  : natural  := 160;
     constant BITMAP_Y_START_PX  : natural  := 80;
-
-    -- Angle down switches vio
-    component angle_down_switches_vio
-        port (
-            clk        : in  std_logic;
-            probe_out0 : out std_logic_vector(0 downto 0);
-            probe_out1 : out std_logic_vector(0 downto 0);
-            probe_out2 : out std_logic_vector(0 downto 0)
-        );
-    end component;
-
-    signal x_angle_down_sw : std_logic;
-    signal y_angle_down_sw : std_logic;    
-    signal z_angle_down_sw : std_logic;
-
-    -- ILA
-    component ila_0
-        port (
-            clk    : in std_logic;
-            probe0 : in std_logic_vector(0 downto 0);
-            probe1 : in std_logic_vector(0 downto 0); 
-            probe2 : in std_logic_vector(0 downto 0); 
-            probe3 : in std_logic_vector(0 downto 0);
-            probe4 : in std_logic_vector(0 downto 0)
-        );
-    end component;
     
     -- 50 MHz clk generator
     component clk_gen_50mhz
@@ -107,22 +84,4 @@ begin
             green           => green,
             blue            => blue            
         );
-
-    vio_angle_down_switches: angle_down_switches_vio
-        port map (
-            clk           => clk,
-            probe_out0(0) => x_angle_down_sw,
-            probe_out1(0) => y_angle_down_sw,
-            probe_out2(0) => z_angle_down_sw
-        );
-
-    ila: ila_0
-        port map (
-            clk       => clk,
-            probe0(0) => h_sync, 
-            probe1(0) => v_sync, 
-            probe2(0) => red, 
-            probe3(0) => green,
-            probe4(0) => blue
-        );    
 end architecture;
