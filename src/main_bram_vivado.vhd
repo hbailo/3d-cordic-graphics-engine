@@ -28,7 +28,7 @@ architecture behavioral of main_bram_vivado is
     constant DATA_WIDTH         : positive := 9;
     constant ANGULAR_VEL_DEG_S  : positive := 45;    
     constant DEBOUNCE_PERIOD_MS : positive := 20;
-    constant VGA_REFRESH_RATE   : positive := 50;    
+    constant VGA_REFRESH_RATE   : positive := 60;    
     constant BITMAP_WIDTH_PX    : positive := 320;
     constant BITMAP_HEIGHT_PX   : positive := 320;
     constant BITMAP_X_START_PX  : natural  := 160;
