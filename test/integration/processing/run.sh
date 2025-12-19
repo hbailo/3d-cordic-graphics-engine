@@ -14,7 +14,6 @@ readonly DUT="integration"
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
-ghdl -a $GHDL_FLAGS $SRCDIR/projector/orthographic_projector.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/rotator/cordic/cordic_pipeline_synchronizer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/rotator/cordic/cordic_preprocessor.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/rotator/cordic/cordic_stage.vhd
