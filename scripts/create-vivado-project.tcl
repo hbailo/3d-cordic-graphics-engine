@@ -54,24 +54,34 @@ set_property file_type {VHDL 2008} [add_files -fileset sim_unit ./test/unit]
 set_property file_type {VHDL 2008} [add_files -fileset sim_unit ./test/resources/mocks/sram_mock/sram_mock.vhd]
 
 # --- Integration tests ---
-# 1) Uart + external memory
-create_fileset -simset sim_int_uart_mem
+# 1) Uart + SRAM external memory
+create_fileset -simset sim_int_uart_mem_sram
 
-set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem ./test/integration/uart-memory/integration_tb.vhd]
+set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem_sram ./test/integration/uart-memory/sram/integration_tb.vhd]
 
-set_property top integration_tb [get_filesets sim_int_uart_mem]
-set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_uart_mem]
+set_property top integration_tb [get_filesets sim_int_uart_mem_sram]
+set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_uart_mem_sram]
 
 # Resources
 set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem ./test/resources/mocks/sram_mock/sram_mock.vhd]
 
-# 2) External memory to vga
-create_fileset -simset sim_int_mem_ui_proc_video
+# 2) Uart + SRAM external memory
 
-set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_ui_proc_video ./test/integration/memory-ui-processing-vram-vga/integration_tb.vhd]
+# 3) External SRAM memory to vga
+create_fileset -simset sim_int_mem_sram_ui_proc_video
 
-set_property top integration_tb [get_filesets sim_int_mem_ui_proc_video]
-set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_mem_ui_proc_video]
+set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_sram_ui_proc_video ./test/integration/memory-ui-processing-vram-vga/sram/integration_tb.vhd]
+
+set_property top integration_tb [get_filesets sim_int_mem_sram_ui_proc_video]
+set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_mem_sram_ui_proc_video]
+
+# 4) Internal BRAM memory to vga
+create_fileset -simset sim_int_mem_bram_ui_proc_video
+
+set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_bram_ui_proc_video ./test/integration/memory-ui-processing-vram-vga/bram/integration_tb.vhd]
+
+set_property top integration_tb [get_filesets sim_int_mem_bram_ui_proc_video]
+set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_mem_bram_ui_proc_video]
 
 # Resources
 set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_ui_proc_video ./test/resources/mocks/sram_mock/sram_mock.vhd]
