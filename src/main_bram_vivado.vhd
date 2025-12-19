@@ -77,7 +77,7 @@ begin
             locked   => open
         );
     
-    main: entity work.main
+    main_bram: entity work.main_bram
         generic map (
             CLK_FREQ_HZ        => CLK_FREQ_HZ,
             BAUD_RATE          => BAUD_RATE,
