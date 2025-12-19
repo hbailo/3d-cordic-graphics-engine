@@ -502,7 +502,7 @@ begin
     -- VGA dump
     -- RATIONALE: https://ericeastwood.com/blog/vga-simulator-getting-started/
     vga_dump: process(clk)
-        file dump_file   : text open write_mode is BASE_PATH & "/test/integration/memory-ui-processing-vram-vga/build/vga_dump.txt";
+        file dump_file   : text open write_mode is BASE_PATH & "/test/integration/memory-ui-processing-vram-vga/sram/build/vga_dump.txt";
         variable line_el : line;
     begin
         if rising_edge(clk) then
