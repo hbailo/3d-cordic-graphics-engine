@@ -17,7 +17,7 @@ set_property -dict { PACKAGE_PIN B9    IOSTANDARD LVCMOS33 } [get_ports { z_angl
 ## Angle down switches
 set_property -dict { PACKAGE_PIN A8    IOSTANDARD LVCMOS33 } [get_ports { x_angle_down_sw }];  #IO_L12N_T1_MRCC_16 Sch=sw[0]
 set_property -dict { PACKAGE_PIN C11   IOSTANDARD LVCMOS33 } [get_ports { y_angle_down_sw }];  #IO_L13P_T2_MRCC_16 Sch=sw[1]
-set_property -dict { PACKAGE_PIN C10   IOSTANDARD LVCMOS33 } [get_ports { z_angle_down_sw] }]; #IO_L13N_T2_MRCC_16 Sch=sw[2]
+set_property -dict { PACKAGE_PIN C10   IOSTANDARD LVCMOS33 } [get_ports { z_angle_down_sw }]; #IO_L13N_T2_MRCC_16 Sch=sw[2]
 
 ## VGA
 ## Pmod Header JA
