@@ -103,15 +103,9 @@ begin
     end process;
 
     --! Mealy outputs (no latency)
-    process(clk, rst)
+    process(clk)
     begin
-        if rst then
-            bram_addr <= (others => '0');
-            bram_we   <= '0';
-            bram_ena  <= '0';
-            bram_din  <= (others => '0');
-            ready     <= '1';
-        elsif rising_edge(clk) then
+        if rising_edge(clk) then
             case next_state is
             when IDLE =>
                 bram_addr <= (others => '0');
@@ -142,29 +136,6 @@ begin
             end case;
         end if;
     end process;
-
-    --! Moore outputs (1 clk latency)
-    process(clk, rst)
-    begin
-        if rst then
-            dout <= (others => '0');
-        elsif rising_edge(clk) then
-            case state is
-            when IDLE =>
-                null;
-            
-            when READING_1 =>
-                null;
-
-            when READING_2 =>
-                dout <= bram_dout;
-
-            when WRITING_1 =>
-                null;
-            
-            when WRITING_2 =>
-                null;
-            end case;
-        end if;
-    end process;
+    
+    dout <= bram_dout;
 end architecture;
