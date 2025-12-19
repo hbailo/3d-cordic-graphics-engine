@@ -3,20 +3,20 @@ use ieee.std_logic_1164.all;
 
 entity main_bram_vivado is
     port (
-        sysclk          : in std_logic;
-        rst             : in std_logic;
-        rx              : in std_logic;
-        x_angle_up_sw   : in std_logic;
-        y_angle_up_sw   : in std_logic;
-        z_angle_up_sw   : in std_logic;
-        x_angle_up_down : in std_logic;
-        y_angle_up_down : in std_logic;
-        z_angle_up_down : in std_logic;        
-        h_sync          : out std_logic;
-        v_sync          : out std_logic;
-        red             : out std_logic;
-        green           : out std_logic;
-        blue            : out std_logic
+        sysclk             : in std_logic;
+        rst                : in std_logic;
+        rx                 : in std_logic;
+        x_angle_up_sw      : in std_logic;
+        y_angle_up_sw      : in std_logic;
+        z_angle_up_sw      : in std_logic;
+        x_angle_down_sw : in std_logic;
+        y_angle_down_sw : in std_logic;
+        z_angle_down_sw : in std_logic;        
+        h_sync             : out std_logic;
+        v_sync             : out std_logic;
+        red                : out std_logic;
+        green              : out std_logic;
+        blue               : out std_logic
     );
 end entity;
 
