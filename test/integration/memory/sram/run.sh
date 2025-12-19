@@ -2,9 +2,10 @@
 set -euo pipefail
 
 # Paths definitions
-readonly SRCDIR="../../../src/memory"
-readonly RESDIR="../../resources"
-readonly WORKDIR="../../../build"
+readonly BASE_PATH="../../../.."
+readonly SRCDIR="${BASE_PATH}/src/memory"
+readonly RESDIR="${BASE_PATH}/test/resources"
+readonly WORKDIR="${BASE_PATH}/build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
@@ -28,7 +29,7 @@ ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
 timestamp=$(date +"%Y-%m-%dT%H-%M-%S")
 wavefile="$WAVEDIR/${DUT}_tb-${timestamp}.ghw"
 
-ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=5ms --wave=$wavefile
+ghdl -r $GHDL_FLAGS -gBASE_PATH=${BASE_PATH} ${DUT}_tb --stop-time=5ms --wave=$wavefile
 
 # Simulation waveform display
 savefile="${WAVEDIR}/${DUT}_tb-${timestamp}.gtkw"
