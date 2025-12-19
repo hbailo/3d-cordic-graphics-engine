@@ -4,17 +4,17 @@ use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
 use std.textio.all;
 
-entity main_tb is
+entity main_bram_tb is
     generic (
         BASE_PATH: string := ""
     );        
 end entity;
 
-architecture behavioral of main_tb is
+architecture behavioral of main_bram_tb is
     -- DUT generics
     constant CLK_FREQ_HZ        : positive := 50_000_000;
     constant BAUD_RATE          : positive := 115_200;    
-    constant DATA_POINTS        : positive := 10;
+    constant DATA_POINTS        : positive := 5;
     constant DATA_WIDTH         : positive := 9;
     constant ANGULAR_VEL_DEG_S  : positive := 45;    
     constant DEBOUNCE_PERIOD_MS : positive := 20;
@@ -43,24 +43,6 @@ architecture behavioral of main_tb is
     signal z_angle_up_sw   : std_logic := '0';
     signal z_angle_down_sw : std_logic := '0';        
 
-    -- SRAM A    
-    signal addr_a : std_logic_vector(17 downto 0);
-    signal dio_a  : std_logic_vector(15 downto 0);
-    signal we_n_a : std_logic;
-    signal oe_n_a : std_logic;
-    signal ce_n_a : std_logic;
-    signal ub_n_a : std_logic;
-    signal lb_n_a : std_logic;
-    
-    -- SRAM B    
-    signal addr_b : std_logic_vector(17 downto 0);
-    signal dio_b  : std_logic_vector(15 downto 0);
-    signal we_n_b : std_logic;
-    signal oe_n_b : std_logic;
-    signal ce_n_b : std_logic;
-    signal ub_n_b : std_logic;
-    signal lb_n_b : std_logic;
-
     -- VGA
     signal h_sync : std_logic;
     signal v_sync : std_logic;
@@ -69,11 +51,10 @@ architecture behavioral of main_tb is
     signal blue   : std_logic_vector(0 downto 0);
     
     -- Testbench constants    
-    constant SRAM_MOCK_ADDR_WIDTH : positive := integer(ceil(log2(real(DATA_POINTS))));
-    constant CLK_PERIOD           : time := 1 sec / real(CLK_FREQ_HZ);
-    constant BIT_PERIOD           : time := 1 sec / real(BAUD_RATE);    
+    constant CLK_PERIOD : time := 1 sec / real(CLK_FREQ_HZ);
+    constant BIT_PERIOD : time := 1 sec / real(BAUD_RATE);    
 begin
-    dut: entity work.main
+    dut: entity work.main_bram
         generic map (
             CLK_FREQ_HZ        => CLK_FREQ_HZ,
             BAUD_RATE          => BAUD_RATE,
@@ -97,20 +78,6 @@ begin
             y_angle_down_sw => y_angle_down_sw,
             z_angle_up_sw   => z_angle_up_sw,  
             z_angle_down_sw => z_angle_down_sw,            
-            addr_a          => addr_a,
-            dio_a           => dio_a,
-            we_n_a          => we_n_a,
-            oe_n_a          => oe_n_a,
-            ce_n_a          => ce_n_a,
-            ub_n_a          => ub_n_a,
-            lb_n_a          => lb_n_a,
-            addr_b          => addr_b,
-            dio_b           => dio_b,
-            we_n_b          => we_n_b,
-            oe_n_b          => oe_n_b,
-            ce_n_b          => ce_n_b,
-            ub_n_b          => ub_n_b,
-            lb_n_b          => lb_n_b,
             h_sync          => h_sync,
             v_sync          => v_sync,
             red             => red(0),
@@ -118,38 +85,11 @@ begin
             blue            => blue(0)            
         );
 
-    sram_a: entity work.sram_mock
-        generic map (
-            ADDR_WIDTH => SRAM_MOCK_ADDR_WIDTH
-        )
-        port map (
-            addr => addr_a,
-            dio  => dio_a,
-            we_n => we_n_a,
-            oe_n => oe_n_a,
-            ce_n => ce_n_a,
-            ub_n => ub_n_a,
-            lb_n => lb_n_a
-        );
-
-    sram_b: entity work.sram_mock
-        generic map (
-            ADDR_WIDTH => SRAM_MOCK_ADDR_WIDTH
-        )        
-        port map (
-            addr => addr_b,
-            dio  => dio_b,
-            we_n => we_n_b,
-            oe_n => oe_n_b,
-            ce_n => ce_n_b,
-            ub_n => ub_n_b,
-            lb_n => lb_n_b
-        );
-
     clk <= not clk after CLK_PERIOD / 2;
-    
+
+    -- Uart tx simulation
     uart_tx: process
-        procedure send_byte(b : in std_logic_vector(7 downto 0)) is
+        procedure push_tx_byte(byte : in std_logic_vector(7 downto 0)) is
         begin
             -- Start bit
             rx <= '0';
@@ -157,7 +97,7 @@ begin
 
             -- Data bits (LSB first)
             for i in 0 to 7 loop
-                rx <= b(i);
+                rx <= byte(i);
                 wait for BIT_PERIOD;
             end loop;
 
@@ -166,49 +106,57 @@ begin
             wait for BIT_PERIOD;
         end procedure;
         
-        file coord_file   : text open read_mode is BASE_PATH & "/test/resources/data/q0.8-coordinates.csv";
-        variable L        : line;
-        variable vx       : integer;
-        variable vy       : integer;
-        variable vz       : integer;
-        variable dummy    : string(1 to 1);
+        file input_csv    : text open read_mode is BASE_PATH & "/test/resources/data/q0.8-coordinates.csv";
+        variable line_buf : line;
+        variable x_int    : integer;
+        variable y_int    : integer;
+        variable z_int    : integer;
+        variable comma    : string(1 to 1);
         variable data_buf : std_logic_vector(31 downto 0);
     begin
         rst <= '1', '0' after CLK_PERIOD / 4;
         wait until rst = '1';
         wait until rising_edge(clk);
-
-        -- Load csv file
-        readline(coord_file, L);
         
-        while not endfile(coord_file) loop
-            readline(coord_file, L);
+        readline(input_csv, line_buf);
+        
+        while not endfile(input_csv) loop
+            readline(input_csv, line_buf);
 
-            -- Read coordinates x,y,z (comma separated)
-            read(L, vx);
-            read(L, dummy);  -- comma
-            read(L, vy);
-            read(L, dummy);  -- comma
-            read(L, vz);
+            read(line_buf, x_int);
+            read(line_buf, comma);
+            read(line_buf, y_int);
+            read(line_buf, comma);
+            read(line_buf, z_int);
  
-            data_buf := std_logic_vector(to_signed(vx, DATA_WIDTH)) &
-                        std_logic_vector(to_signed(vy, DATA_WIDTH)) &
-                        std_logic_vector(to_signed(vz, DATA_WIDTH)) &
+            data_buf := std_logic_vector(to_signed(x_int, DATA_WIDTH)) &
+                        std_logic_vector(to_signed(y_int, DATA_WIDTH)) &
+                        std_logic_vector(to_signed(z_int, DATA_WIDTH)) &
                         "00000";
                         
-            send_byte(data_buf(31 downto 24));            
-            send_byte(data_buf(23 downto 16));
-            send_byte(data_buf(15 downto 8));
-            send_byte(data_buf(7 downto 0));
+            push_tx_byte(data_buf(31 downto 24));            
+            push_tx_byte(data_buf(23 downto 16));
+            push_tx_byte(data_buf(15 downto 8));
+            push_tx_byte(data_buf(7 downto 0));
         end loop;
         
         wait;
     end process;
 
+    -- Ui simulation
+    ui: process
+    begin
+        x_angle_up_sw   <= '1' after 10 ms, '0' after 45 ms;
+        y_angle_down_sw <= '1' after 20 ms, '0' after 65 ms;
+        z_angle_down_sw <= '1' after 30 ms; 
+        
+        wait;
+    end process;
+    
     -- VGA dump
     -- RATIONALE: https://ericeastwood.com/blog/vga-simulator-getting-started/
     vga_dump: process(clk)
-        file dump_file   : text open write_mode is BASE_PATH & "/test/main/build/vga_dump.txt";
+        file dump_file   : text open write_mode is BASE_PATH & "/test/main/main_bram/build/vga_dump.txt";
         variable line_el : line;
     begin
         if rising_edge(clk) then

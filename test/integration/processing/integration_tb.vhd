@@ -28,10 +28,7 @@ architecture behavioral of integration_tb is
     signal x_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal y_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);    
     signal z_rot      : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal valid_rot  : std_logic;
-    signal y_proj     : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal z_proj     : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal valid_proj : std_logic;    
+    signal valid_rot  : std_logic; 
 begin
     rotator: entity work.xyz_rotator
         generic map (
@@ -51,22 +48,6 @@ begin
             yo      => y_rot,
             zo      => z_rot,
             valid   => valid_rot
-        );
-
-    projector: entity work.orthographic_projector
-        generic map (
-            DATA_WIDTH => DATA_WIDTH
-        )
-        port map (
-            clk   => clk,
-            rst   => rst,
-            start => valid_rot,
-            xi    => x_rot,
-            yi    => y_rot,
-            zi    => z_rot,
-            yo    => y_proj,
-            zo    => z_proj,
-            valid => valid_proj
         );    
 
     clk <= not clk after CLK_PERIOD / 2;

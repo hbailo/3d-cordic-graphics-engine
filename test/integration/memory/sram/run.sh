@@ -2,8 +2,10 @@
 set -euo pipefail
 
 # Paths definitions
-readonly SRCDIR="../../../src/processing"
-readonly WORKDIR="../../../build"
+readonly BASE_PATH="../../../.."
+readonly SRCDIR="${BASE_PATH}/src/memory"
+readonly RESDIR="${BASE_PATH}/test/resources"
+readonly WORKDIR="${BASE_PATH}/build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
@@ -14,13 +16,11 @@ readonly DUT="integration"
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
 
-ghdl -a $GHDL_FLAGS $SRCDIR/rotator/cordic/cordic_pipeline_synchronizer.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/rotator/cordic/cordic_preprocessor.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/rotator/cordic/cordic_stage.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/rotator/cordic/cordic_postprocessor.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/rotator/cordic/cordic.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/rotator/axis_rotator.vhd
-ghdl -a $GHDL_FLAGS $SRCDIR/rotator/xyz_rotator.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/memory_loader.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/memory_reader.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/sram_controller.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/bram.vhd
+ghdl -a $GHDL_FLAGS $RESDIR/mocks/sram_mock/sram_mock.vhd
 
 # Testbench analysis
 ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
@@ -29,7 +29,7 @@ ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
 timestamp=$(date +"%Y-%m-%dT%H-%M-%S")
 wavefile="$WAVEDIR/${DUT}_tb-${timestamp}.ghw"
 
-ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=250us --wave=$wavefile
+ghdl -r $GHDL_FLAGS -gBASE_PATH=${BASE_PATH} ${DUT}_tb --stop-time=5ms --wave=$wavefile
 
 # Simulation waveform display
 savefile="${WAVEDIR}/${DUT}_tb-${timestamp}.gtkw"

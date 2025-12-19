@@ -2,14 +2,14 @@
 set -euo pipefail
 
 # Paths definitions
-readonly SRCDIR="../../../../../src/processing/projector"
-readonly WORKDIR="../../../../../build"
+readonly SRCDIR="../../../../src/memory"
+readonly WORKDIR="../../../../build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
 
 # DUT entity
-readonly DUT="orthographic_projector"
+readonly DUT="bram_controller"
 
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
@@ -23,7 +23,7 @@ ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
 timestamp=$(date +"%Y-%m-%dT%H-%M-%S")
 wavefile="$WAVEDIR/${DUT}_tb-${timestamp}.ghw"
 
-ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=60ns --wave=$wavefile
+ghdl -r $GHDL_FLAGS ${DUT}_tb --stop-time=300ns --wave=$wavefile
 
 # Simulation waveform display
 savefile="${WAVEDIR}/${DUT}_tb-${timestamp}.gtkw"
@@ -38,7 +38,7 @@ if [ -f "$baseline_savefile" ]; then
         -e "s|^\[savefile\].*|[savefile] \"$(realpath $savefile)\"|" \
         "$savefile"
     
-    twinwave $wavefile $savefile + $baseline_wavefile $baseline_savefile
+    twinwave $wavefile $savefile ++ $baseline_wavefile $baseline_savefile
 else
     gtkwave --saveonexit $wavefile $savefile
 fi
