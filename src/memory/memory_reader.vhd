@@ -79,7 +79,6 @@ architecture fsm of memory_reader is
     signal next_state: state_t;
     
     signal data_point_index: unsigned(ram_addr'range);
-    signal ram_dout_unused: std_logic_vector(31 - 3 * DATA_WIDTH downto 0);
 begin
     --! State register    
     process(clk, rst)
@@ -140,6 +139,4 @@ begin
                        
     valid <= ram_ready when state = READING else
              '0';
-    
-    ram_dout_unused <= ram_dout(31 - 3 * DATA_WIDTH downto 0);
 end architecture;
