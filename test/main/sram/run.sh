@@ -2,16 +2,16 @@
 set -euo pipefail
 
 # Paths definitions
-readonly BASE_PATH="../.."
-readonly SRCDIR="../../src"
-readonly RESDIR="../resources"
-readonly WORKDIR="../../build"
+readonly BASE_PATH="../../.."
+readonly SRCDIR="${BASE_PATH}/src"
+readonly RESDIR="${BASE_PATH}/test/resources"
+readonly WORKDIR="${BASE_PATH}/build"
 readonly WAVEDIR="./build"
 
 mkdir -p "$WORKDIR" "$WAVEDIR"
 
 # DUT entity
-readonly DUT="main"
+readonly DUT="main_sram"
 
 # Design analysis
 readonly GHDL_FLAGS="--std=08 --workdir=$WORKDIR -Wall"
@@ -33,6 +33,9 @@ ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/uart_rx_interface.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/uart_rx.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/ui/angle_stepper.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/ui/switch_debouncer.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/image_generator.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/vga_controller.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/vga.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_clearer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_drawer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_sequencer.vhd
@@ -47,7 +50,7 @@ ghdl -a $GHDL_FLAGS ${DUT}_tb.vhd
 timestamp=$(date +"%Y-%m-%dT%H-%M-%S")
 wavefile="$WAVEDIR/${DUT}_tb-${timestamp}.ghw"
 
-ghdl -r $GHDL_FLAGS -gBASE_PATH=${BASE_PATH} ${DUT}_tb --stop-time=50ms --wave=$wavefile
+ghdl -r $GHDL_FLAGS -gBASE_PATH=${BASE_PATH} ${DUT}_tb --stop-time=2ms --wave=$wavefile
 
 # Simulation waveform display
 savefile="${WAVEDIR}/${DUT}_tb-${timestamp}.gtkw"

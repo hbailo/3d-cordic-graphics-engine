@@ -4,13 +4,13 @@ use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
 use std.textio.all;
 
-entity main_tb is
+entity main_sram_tb is
     generic (
         BASE_PATH: string := ""
     );        
 end entity;
 
-architecture behavioral of main_tb is
+architecture behavioral of main_sram_tb is
     -- DUT generics
     constant CLK_FREQ_HZ        : positive := 50_000_000;
     constant BAUD_RATE          : positive := 115_200;    
@@ -73,7 +73,7 @@ architecture behavioral of main_tb is
     constant CLK_PERIOD           : time := 1 sec / real(CLK_FREQ_HZ);
     constant BIT_PERIOD           : time := 1 sec / real(BAUD_RATE);    
 begin
-    dut: entity work.main
+    dut: entity work.main_sram
         generic map (
             CLK_FREQ_HZ        => CLK_FREQ_HZ,
             BAUD_RATE          => BAUD_RATE,
@@ -217,7 +217,7 @@ begin
     -- VGA dump
     -- RATIONALE: https://ericeastwood.com/blog/vga-simulator-getting-started/
     vga_dump: process(clk)
-        file dump_file   : text open write_mode is BASE_PATH & "/test/main/build/vga_dump.txt";
+        file dump_file   : text open write_mode is BASE_PATH & "/test/main/sram/build/vga_dump.txt";
         variable line_el : line;
     begin
         if rising_edge(clk) then

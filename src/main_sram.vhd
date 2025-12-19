@@ -16,7 +16,7 @@ use ieee.std_logic_1164.all;
 --! 6. Bitmap sequencer writes projected points into VRAM.
 --! 7. Dual-port RAM provides VRAM access to both sequencer and VGA controller.
 --! 8. VGA entity reads VRAM and generates RGB signals with h_sync and v_sync.
-entity main is
+entity main_sram is
     generic (        
         --! System clock frequency in Hz
         CLK_FREQ_HZ: positive := 50_000_000;
@@ -150,7 +150,7 @@ end entity;
 --! - bitmap_sequencer for VRAM writes
 --! - dual_port_ram for VRAM
 --! - vga for display output
-architecture structural of main is
+architecture structural of main_sram is
     -- UART
     signal rx_read   : std_logic;
     signal rx_empty  : std_logic;
