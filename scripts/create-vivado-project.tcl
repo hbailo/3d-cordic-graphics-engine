@@ -4,12 +4,15 @@
 # Project settings
 # ---------------------------------------
 set proj_name 3d-cordic-graphics-engine
-#A7-35
-set proj_dir  ./build/vivado-arty-a7-35
-set part xc7z010clg400-1
-#Z7-10
-#set proj_dir  ./build/vivado-arty-z7-10
-#set part xc7a35ticsg324-1L
+
+# A7-35
+set proj_dir ./build/vivado-arty-a7-35
+set part xc7a35ticsg324-1L
+
+# Z7-10
+#set proj_dir ./build/vivado-arty-z7-10
+#set part xc7z010clg400-1
+
 
 # ---------------------------------------
 # Args processing
@@ -40,7 +43,7 @@ set_property file_type {VHDL 2008} [add_files -fileset sources_1 ./src]
 # ---------------------------------------
 # Set top entity
 # ---------------------------------------
-set_property top main [get_filesets sources_1]
+set_property top main_bram_vivado [get_filesets sources_1]
 
 # ---------------------------------------
 # Add testbenches
@@ -54,7 +57,7 @@ set_property file_type {VHDL 2008} [add_files -fileset sim_unit ./test/unit]
 set_property file_type {VHDL 2008} [add_files -fileset sim_unit ./test/resources/mocks/sram_mock/sram_mock.vhd]
 
 # --- Integration tests ---
-# 1) Uart + SRAM external memory
+# 1) Uart + external SRAM memory
 create_fileset -simset sim_int_uart_mem_sram
 
 set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem_sram ./test/integration/uart-memory/sram/integration_tb.vhd]
@@ -63,9 +66,15 @@ set_property top integration_tb [get_filesets sim_int_uart_mem_sram]
 set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_uart_mem_sram]
 
 # Resources
-set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem ./test/resources/mocks/sram_mock/sram_mock.vhd]
+set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem_sram ./test/resources/mocks/sram_mock/sram_mock.vhd]
 
-# 2) Uart + SRAM external memory
+# 2) Uart + internal BRAM memory
+create_fileset -simset sim_int_uart_mem_bram
+
+set_property file_type {VHDL 2008} [add_files -fileset sim_int_uart_mem_bram ./test/integration/uart-memory/bram/integration_tb.vhd]
+
+set_property top integration_tb [get_filesets sim_int_uart_mem_bram]
+set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_uart_mem_bram]
 
 # 3) External SRAM memory to vga
 create_fileset -simset sim_int_mem_sram_ui_proc_video
@@ -75,6 +84,9 @@ set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_sram_ui_proc_
 set_property top integration_tb [get_filesets sim_int_mem_sram_ui_proc_video]
 set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_mem_sram_ui_proc_video]
 
+# Resources
+set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_sram_ui_proc_video ./test/resources/mocks/sram_mock/sram_mock.vhd]
+
 # 4) Internal BRAM memory to vga
 create_fileset -simset sim_int_mem_bram_ui_proc_video
 
@@ -82,9 +94,6 @@ set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_bram_ui_proc_
 
 set_property top integration_tb [get_filesets sim_int_mem_bram_ui_proc_video]
 set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_int_mem_bram_ui_proc_video]
-
-# Resources
-set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_ui_proc_video ./test/resources/mocks/sram_mock/sram_mock.vhd]
 
 # --- System test ---
 create_fileset -simset sim_main
@@ -105,11 +114,14 @@ delete_fileset [get_filesets sim_1]
 # ---------------------------------------
 #add_files -fileset constrs_1 ./constraints/arty-z7-10.xdc
 add_files -fileset constrs_1 ./constraints/arty-a7-35.xdc
+
 # ---------------------------------------
 # Compile order
 # ---------------------------------------
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_unit
-update_compile_order -fileset sim_int_uart_mem
-update_compile_order -fileset sim_int_mem_ui_proc_video
+update_compile_order -fileset sim_int_uart_mem_sram
+update_compile_order -fileset sim_int_uart_mem_bram
+update_compile_order -fileset sim_int_mem_sram_ui_proc_video
+update_compile_order -fileset sim_int_mem_bram_ui_proc_video
 update_compile_order -fileset sim_main
