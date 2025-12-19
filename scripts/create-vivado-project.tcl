@@ -78,8 +78,9 @@ set_property file_type {VHDL 2008} [add_files -fileset sim_int_mem_ui_proc_video
 
 # --- System test ---
 create_fileset -simset sim_main
-set_property file_type {VHDL 2008} [add_files -fileset sim_main ./test/main/main_tb.vhd]
-set_property top main_tb [get_filesets sim_main]
+set_property file_type {VHDL 2008} [add_files -fileset sim_main ./test/main/main_bram/main_bram_tb.vhd]
+set_property file_type {VHDL 2008} [add_files -fileset sim_main ./test/main/main_sram/main_sram_tb.vhd]
+set_property top main_bram_tb [get_filesets sim_main]
 set_property generic "BASE_PATH=$BASE_PATH" [get_filesets sim_main]
 current_fileset -simset [get_filesets sim_main]
 
@@ -92,8 +93,8 @@ delete_fileset [get_filesets sim_1]
 # ---------------------------------------
 # Add constraints
 # ---------------------------------------
-add_files -fileset constrs_1 ./constraints/arty-z7-10.xdc
-
+#add_files -fileset constrs_1 ./constraints/arty-z7-10.xdc
+add_files -fileset constrs_1 ./constraints/arty-a7-35.xdc
 # ---------------------------------------
 # Compile order
 # ---------------------------------------
