@@ -54,7 +54,7 @@ architecture behavioral of main_bram_tb is
     constant CLK_PERIOD : time := 1 sec / real(CLK_FREQ_HZ);
     constant BIT_PERIOD : time := 1 sec / real(BAUD_RATE);    
 begin
-    dut: entity work.main
+    dut: entity work.main_bram
         generic map (
             CLK_FREQ_HZ        => CLK_FREQ_HZ,
             BAUD_RATE          => BAUD_RATE,
@@ -156,7 +156,7 @@ begin
     -- VGA dump
     -- RATIONALE: https://ericeastwood.com/blog/vga-simulator-getting-started/
     vga_dump: process(clk)
-        file dump_file   : text open write_mode is BASE_PATH & "/test/main/bram/build/vga_dump.txt";
+        file dump_file   : text open write_mode is BASE_PATH & "/test/main/main_bram/build/vga_dump.txt";
         variable line_el : line;
     begin
         if rising_edge(clk) then

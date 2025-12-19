@@ -34,6 +34,9 @@ ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/uart_rx_interface.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/uart-rx/uart_rx.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/ui/angle_stepper.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/ui/switch_debouncer.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/image_generator.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/vga_controller.vhd
+ghdl -a $GHDL_FLAGS $SRCDIR/video/vga/vga.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_clearer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_drawer.vhd
 ghdl -a $GHDL_FLAGS $SRCDIR/video/vram/bitmap_sequencer.vhd
