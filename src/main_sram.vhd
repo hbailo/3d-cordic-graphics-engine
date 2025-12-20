@@ -35,9 +35,6 @@ entity main_sram is
 
         --! Debounce period for user input switches in milliseconds        
         DEBOUNCE_PERIOD_MS: positive := 20;
-
-        --! Display refresh rate in Hz
-        VGA_REFRESH_RATE: positive := 60;
         
         --! Bitmap width in pixels                
         BITMAP_WIDTH_PX: positive := 320;
@@ -500,7 +497,6 @@ begin
     --! VGA
     vga: entity work.vga
         generic map (
-            REFRESH_RATE      => VGA_REFRESH_RATE,
             BITMAP_WIDTH_PX   => BITMAP_WIDTH_PX,
             BITMAP_HEIGHT_PX  => BITMAP_HEIGHT_PX, 
             BITMAP_X_START_PX => BITMAP_X_START_PX,
