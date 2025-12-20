@@ -1,6 +1,7 @@
 library ieee;
 use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
+use std.env.all;
 
 entity bram_tb is
 end entity;
@@ -14,14 +15,12 @@ architecture behavioral of bram_tb is
     constant DATA_WIDTH : positive := 32;
     
     -- DUT signals
-    signal clk    : std_logic := '0';
-    signal en_a   : std_logic;
-    signal en_b   : std_logic;
-    signal we_a   : std_logic;
-    signal addr_a : std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    signal addr_b : std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    signal din_a  : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    signal dout_b : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal clk  : std_logic := '0';
+    signal ena  : std_logic;
+    signal we   : std_logic;
+    signal addr : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+    signal din  : std_logic_vector(31 downto 0);
+    signal dout : std_logic_vector(31 downto 0);
 
 begin
     dut: entity work.bram
@@ -29,46 +28,53 @@ begin
         ADDR_WIDTH => ADDR_WIDTH,
         DATA_WIDTH => DATA_WIDTH
     )
-    port map (
-        clk    => clk,
-        en_a   => en_a,
-        en_b   => en_b,
-        we_a   => we_a,
-        addr_a => addr_a,
-        addr_b => addr_b,
-        din_a  => din_a,
-        dout_b => dout_b
-    );
+        port map (
+            clk  => clk,
+            ena  => ena,
+            we   => we,
+            addr => addr,
+            din  => din,
+            dout => dout
+        );
     
     clk <= not clk after CLK_PERIOD / 2;
 
     process
     begin
         -- Write
-        addr_a <= std_logic_vector(to_unsigned(3, addr_a'length));
-        addr_b <= (others => '0');
-        din_a  <= std_logic_vector(to_unsigned(28, din_a'length));
-        we_a   <= '1';
-        en_a   <= '1';
-        en_b   <= '0';
+        addr <= std_logic_vector(to_unsigned(3, addr'length));
+        din  <= std_logic_vector(to_unsigned(28, din'length));
+        we   <= '1';
+        ena  <= '1';
         wait until rising_edge(clk);
         
-        we_a   <= '0';
-        en_a   <= '0';        
+        we  <= '0';
+        ena <= '0';        
         wait until rising_edge(clk);
 
+        -- Write
+        addr <= std_logic_vector(to_unsigned(1, addr'length));
+        din  <= std_logic_vector(to_unsigned(10, din'length));
+        we   <= '1';
+        ena  <= '1';
+        wait until rising_edge(clk);
+        
+        we  <= '0';
+        ena <= '0';        
+        wait until rising_edge(clk);
+        
         -- Read
-        addr_a <= (others => '0');
-        addr_b <= std_logic_vector(to_unsigned(3, addr_a'length));
-        din_a  <= (others => '0');
-        we_a   <= '0';
-        en_a   <= '0';
-        en_b   <= '1';
+        addr <= std_logic_vector(to_unsigned(3, addr'length));
+        din  <= (others => '0');
+        we   <= '0';
+        ena  <= '1';
         wait until rising_edge(clk);
         
-        en_b   <= '0';        
+        ena <= '0';        
         wait until rising_edge(clk);
-
+        wait until rising_edge(clk);
+        
+        std.env.finish;
         wait;
     end process;
 end architecture;

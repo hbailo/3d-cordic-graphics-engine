@@ -101,7 +101,6 @@ architecture behavioral of integration_tb is
     signal valid_proj : std_logic;
 
     -- VGA
-    constant REFRESH_RATE      : positive := 60;        
     constant BITMAP_WIDTH_PX   : positive := 320;
     constant BITMAP_HEIGHT_PX  : positive := 320;
     constant BITMAP_X_START_PX : natural  := 160;
@@ -418,7 +417,6 @@ begin
     --! VGA
     vga: entity work.vga
         generic map (
-            REFRESH_RATE      => REFRESH_RATE,            
             BITMAP_WIDTH_PX   => BITMAP_WIDTH_PX,
             BITMAP_HEIGHT_PX  => BITMAP_HEIGHT_PX, 
             BITMAP_X_START_PX => BITMAP_X_START_PX,

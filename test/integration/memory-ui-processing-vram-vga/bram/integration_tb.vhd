@@ -49,13 +49,11 @@ architecture behavioral of integration_tb is
     signal ram_ready : std_logic;
     
     -- BRAM
-    signal en_a   : std_logic;
-    signal en_b   : std_logic;
-    signal we_a   : std_logic;
-    signal addr_a : std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    signal addr_b : std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    signal din_a  : std_logic_vector(31 downto 0);
-    signal dout_b : std_logic_vector(31 downto 0);
+    signal bram_ena  : std_logic;
+    signal bram_we   : std_logic;
+    signal bram_addr : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+    signal bram_din  : std_logic_vector(31 downto 0);
+    signal bram_dout : std_logic_vector(31 downto 0);
     
     constant SRAM_MOCK_ADDR_WIDTH: positive := integer(ceil(log2(real(DATA_POINTS))));
 
@@ -92,7 +90,6 @@ architecture behavioral of integration_tb is
     signal valid_proj : std_logic;
 
     -- VGA
-    constant REFRESH_RATE      : positive := 60;        
     constant BITMAP_WIDTH_PX   : positive := 320;
     constant BITMAP_HEIGHT_PX  : positive := 320;
     constant BITMAP_X_START_PX : natural  := 160;
@@ -172,21 +169,19 @@ begin
             ADDR_WIDTH => ADDR_WIDTH
         )
         port map (
-            clk    => clk,
-            rst    => rst,
-            start  => ram_start,
-            rw     => ram_rw,
-            addr   => ram_addr,
-            din    => ram_din,
-            dout   => ram_dout,
-            ready  => ram_ready,            
-            en_a   => en_a,
-            en_b   => en_b,
-            we_a   => we_a,
-            addr_a => addr_a,
-            addr_b => addr_b,
-            din_a  => din_a,
-            dout_b => dout_b
+            clk       => clk,
+            rst       => rst,
+            start     => ram_start,
+            rw        => ram_rw,
+            addr      => ram_addr,
+            din       => ram_din,
+            dout      => ram_dout,
+            ready     => ram_ready,            
+            bram_ena  => bram_ena, 
+            bram_we   => bram_we,  
+            bram_addr => bram_addr,
+            bram_din  => bram_din,
+            bram_dout => bram_dout
         );
 
     bram: entity work.bram
@@ -195,14 +190,12 @@ begin
             DATA_WIDTH => 32
         )
         port map (
-            clk    => clk,
-            en_a   => en_a,
-            en_b   => en_b,
-            we_a   => we_a,
-            addr_a => addr_a,
-            addr_b => addr_b,
-            din_a  => din_a,
-            dout_b => dout_b
+            clk  => clk,
+            ena  => bram_ena,
+            we   => bram_we,
+            addr => bram_addr,
+            din  => bram_din,
+            dout => bram_dout
         );
     
     --! Rotation angle user interface
@@ -393,7 +386,6 @@ begin
     --! VGA
     vga: entity work.vga
         generic map (
-            REFRESH_RATE      => REFRESH_RATE,            
             BITMAP_WIDTH_PX   => BITMAP_WIDTH_PX,
             BITMAP_HEIGHT_PX  => BITMAP_HEIGHT_PX, 
             BITMAP_X_START_PX => BITMAP_X_START_PX,

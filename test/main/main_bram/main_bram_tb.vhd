@@ -18,7 +18,6 @@ architecture behavioral of main_bram_tb is
     constant DATA_WIDTH         : positive := 9;
     constant ANGULAR_VEL_DEG_S  : positive := 45;    
     constant DEBOUNCE_PERIOD_MS : positive := 20;
-    constant VGA_REFRESH_RATE   : positive := 50;    
     constant BITMAP_WIDTH_PX    : positive := 320;
     constant BITMAP_HEIGHT_PX   : positive := 320;
     constant BITMAP_X_START_PX  : natural  := 160;
@@ -62,7 +61,6 @@ begin
             DATA_WIDTH         => DATA_WIDTH,
             ANGULAR_VEL_DEG_S  => ANGULAR_VEL_DEG_S,
             DEBOUNCE_PERIOD_MS => DEBOUNCE_PERIOD_MS,
-            VGA_REFRESH_RATE   => VGA_REFRESH_RATE,
             BITMAP_WIDTH_PX    => BITMAP_WIDTH_PX,
             BITMAP_HEIGHT_PX   => BITMAP_HEIGHT_PX,
             BITMAP_X_START_PX  => BITMAP_X_START_PX,

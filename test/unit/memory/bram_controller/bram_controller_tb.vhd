@@ -1,6 +1,7 @@
 library ieee;
 use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
+use std.env.all;
 
 entity bram_controller_tb is
 end entity;
@@ -22,35 +23,31 @@ architecture behavioral of bram_controller_tb is
     signal din   : std_logic_vector(31 downto 0) := (others => '0');
     signal dout  : std_logic_vector(31 downto 0);
 
-    signal en_a   : std_logic;
-    signal en_b   : std_logic;
-    signal we_a   : std_logic;
-    signal addr_a : std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    signal addr_b : std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    signal din_a  : std_logic_vector(31 downto 0);
-    signal dout_b : std_logic_vector(31 downto 0);
-    signal ready  : std_logic;
+    signal bram_ena  : std_logic;
+    signal bram_we   : std_logic;
+    signal bram_addr : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+    signal bram_din  : std_logic_vector(31 downto 0);
+    signal bram_dout : std_logic_vector(31 downto 0);
+    signal ready     : std_logic;
 begin
     dut: entity work.bram_controller
         generic map (
             ADDR_WIDTH => ADDR_WIDTH
         )
         port map (
-            clk    => clk,
-            rst    => rst,
-            start  => start,
-            rw     => rw,
-            addr   => addr,
-            din    => din,
-            dout   => dout,
-            ready  => ready,            
-            en_a   => en_a,
-            en_b   => en_b,
-            we_a   => we_a,
-            addr_a => addr_a,
-            addr_b => addr_b,
-            din_a  => din_a,
-            dout_b => dout_b
+            clk       => clk,
+            rst       => rst,
+            start     => start,
+            rw        => rw,
+            addr      => addr,
+            din       => din,
+            dout      => dout,
+            ready     => ready,            
+            bram_ena  => bram_ena, 
+            bram_we   => bram_we,  
+            bram_addr => bram_addr,
+            bram_din  => bram_din,
+            bram_dout => bram_dout
         );
     
     clk <= not clk after CLK_PERIOD / 2;
@@ -102,7 +99,7 @@ begin
         start <= '0';
 
         wait until ready = '1';
-            
-        wait;
+        
+        std.env.finish;
     end process;
 end architecture;

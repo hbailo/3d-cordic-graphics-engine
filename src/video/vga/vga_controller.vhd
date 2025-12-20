@@ -8,11 +8,8 @@ use ieee.std_logic_1164.all;
 --! @brief VGA controller for a 640×480 @ 50 or 60 Hz display
 --! @details
 --! Generates horizontal and vertical sync signals, pixel clock enable, and pixel coordinates.
---! Assumes a 50 MHz system clock input.
---!
---! The display refresh rate selected through the `REFRESH_RATE` generic, which
---! **must be either 50 or 60**. Any other value is considered invalid and will
---! cause an elaboration-time failure.
+--! Assumes a 50 MHz system clock input for 60 Hz operation or 42 MHz clock
+--! for 50 Hz.
 --! 
 --! ## Pixel Coordinate Behavior
 --! Coordinates increment within visible areas and wrap properly at the end of each line and frame.
@@ -21,10 +18,6 @@ use ieee.std_logic_1164.all;
 --! - `next_pixel_y = 0` when a frame ends
 --! - `next_pixel_x` and `next_pixel_y` are sent **ahead of time** to allow fetching the corresponding pixel from external memory with a **one-clock-cycle delay**.
 entity vga_controller is
-    generic (
-        --! Display refresh rate in Hz
-        REFRESH_RATE: positive
-    );
     port (
         --! System clock
         clk: in std_logic;
@@ -47,16 +40,12 @@ entity vga_controller is
         --! Next vertical pixel coordinate        
         next_pixel_y: out std_logic_vector(9 downto 0)
     );
-begin
-    assert (REFRESH_RATE = 50 or REFRESH_RATE = 60)
-        report "REFRESH_RATE must be 50 or 60"
-        severity failure;
 end entity;
 
 --! @brief Behavioral architecture of the VGA controller
 --! @details
 --! Implements:
---! - Pixel clock enable generation at 25 MHz (`pixel_ce`)
+--! - Pixel clock enable generation at half clk frequency.
 --! - Horizontal timing generator and sync logic
 --! - Vertical timing generator and sync logic
 --! - Pixel coordinate output mapping
@@ -70,31 +59,10 @@ architecture behavioral of vga_controller is
     constant HF: integer := 16;     --! Horizontal front porch
     constant HB: integer := 48;     --! Horizontal back porch horizontal
     constant HR: integer := 96;     --! Horizontal retrace
-
-    -- Vertical timing parameters
-    --! @brief Returns the vertical back porch (VB) for a given refresh rate.
-    --! @details Supports only 50 Hz (VB = 133) and 60 Hz (VB = 33).
-    --!          Any other value triggers an elaboration-time assertion failure.
-    --! @param refresh Vertical refresh rate in Hz.
-    --! @return Vertical back porch in lines.    
-    function calc_vb(refresh: integer) return integer is
-    begin
-        case refresh is
-        when 60 =>
-            return 33;
-        when 50 =>
-            return 133;
-        when others =>
-            assert false
-                report "Unsupported REFRESH_RATE. Allowed values: 50 or 60"
-                severity failure;
-            return 0;
-        end case;        
-    end function;
     
     constant VD: integer := 480; --! Vertical display
     constant VF: integer := 10;  --! Vertical front porch
-    constant VB: integer := calc_vb(REFRESH_RATE); --! Vertical back porch
+    constant VB: integer := 33;  --! Vertival back port
     constant VR: integer := 2;   --! Vertical retrace
 
     -- Internal counters and flags    

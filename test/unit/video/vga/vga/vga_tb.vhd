@@ -11,7 +11,6 @@ architecture behavioral of vga_tb is
     constant CLK_PERIOD : time := 1 sec / real(CLK_FREQ);
 
     -- DUT constants
-    constant REFRESH_RATE      : positive := 50;    
     constant BITMAP_WIDTH_PX   : positive := 3;
     constant BITMAP_HEIGHT_PX  : positive := 3;
     constant BITMAP_X_START_PX : natural  := 1;
@@ -45,7 +44,6 @@ architecture behavioral of vga_tb is
 begin
     dut: entity work.vga
         generic map (
-            REFRESH_RATE      => REFRESH_RATE,
             BITMAP_WIDTH_PX   => BITMAP_WIDTH_PX,
             BITMAP_HEIGHT_PX  => BITMAP_HEIGHT_PX, 
             BITMAP_X_START_PX => BITMAP_X_START_PX,

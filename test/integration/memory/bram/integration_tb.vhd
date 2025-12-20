@@ -51,13 +51,11 @@ architecture behavioral of integration_tb is
     signal ram_ready : std_logic;
     
     -- BRAM
-    signal en_a   : std_logic;
-    signal en_b   : std_logic;
-    signal we_a   : std_logic;
-    signal addr_a : std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    signal addr_b : std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    signal din_a  : std_logic_vector(31 downto 0);
-    signal dout_b : std_logic_vector(31 downto 0);
+    signal bram_ena  : std_logic;
+    signal bram_we   : std_logic;
+    signal bram_addr : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+    signal bram_din  : std_logic_vector(31 downto 0);
+    signal bram_dout : std_logic_vector(31 downto 0);
 begin
     memory_loader: entity work.memory_loader
         generic map (
@@ -116,21 +114,19 @@ begin
             ADDR_WIDTH => ADDR_WIDTH
         )
         port map (
-            clk    => clk,
-            rst    => rst,
-            start  => ram_start,
-            rw     => ram_rw,
-            addr   => ram_addr,
-            din    => ram_din,
-            dout   => ram_dout,
-            ready  => ram_ready,            
-            en_a   => en_a,
-            en_b   => en_b,
-            we_a   => we_a,
-            addr_a => addr_a,
-            addr_b => addr_b,
-            din_a  => din_a,
-            dout_b => dout_b
+            clk       => clk,
+            rst       => rst,
+            start     => ram_start,
+            rw        => ram_rw,
+            addr      => ram_addr,
+            din       => ram_din,
+            dout      => ram_dout,
+            ready     => ram_ready,            
+            bram_ena  => bram_ena, 
+            bram_we   => bram_we,  
+            bram_addr => bram_addr,
+            bram_din  => bram_din,
+            bram_dout => bram_dout
         );
 
     bram: entity work.bram
@@ -139,14 +135,12 @@ begin
             DATA_WIDTH => 32
         )
         port map (
-            clk    => clk,
-            en_a   => en_a,
-            en_b   => en_b,
-            we_a   => we_a,
-            addr_a => addr_a,
-            addr_b => addr_b,
-            din_a  => din_a,
-            dout_b => dout_b
+            clk  => clk,
+            ena  => bram_ena,
+            we   => bram_we,
+            addr => bram_addr,
+            din  => bram_din,
+            dout => bram_dout
         );
     
     clk <= not clk after CLK_PERIOD / 2;
