@@ -1,8 +1,6 @@
 # 3D CORDIC Graphics Engine
 A 3D rotation graphics engine based on a CORDIC core, with uart data loading and VGA video output, fully developed in VHDL.
 
-## RTL Schematic
-
 ## Project structure
 ```
 src/                 # RTL design sources (synthesizable)
